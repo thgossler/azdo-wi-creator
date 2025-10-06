@@ -9,13 +9,15 @@ public class WorkItemExecutor
     private readonly string _project;
     private readonly string _workItemType;
     private readonly string? _pat;
+    private readonly bool _interactiveSignIn;
 
-    public WorkItemExecutor(string organization, string project, string workItemType, string? pat = null)
+    public WorkItemExecutor(string organization, string project, string workItemType, string? pat = null, bool interactiveSignIn = false)
     {
         _organization = organization;
         _project = project;
         _workItemType = workItemType;
         _pat = pat;
+        _interactiveSignIn = interactiveSignIn;
     }
 
     public async Task ExecuteCreateAsync(string specPath, bool simulate, bool force)
@@ -148,7 +150,7 @@ public class WorkItemExecutor
 
     private async Task ExecuteCreationAsync(WorkItemSpecFile spec, bool force)
     {
-        using var client = new AzureDevOpsClient(_organization, _project, _pat);
+        using var client = new AzureDevOpsClient(_organization, _project, _pat, _interactiveSignIn);
 
         var created = 0;
         var updated = 0;
@@ -292,7 +294,7 @@ public class WorkItemExecutor
             Console.WriteLine($"Project: {_project}");
             Console.WriteLine();
 
-            using var client = new AzureDevOpsClient(_organization, _project, _pat);
+            using var client = new AzureDevOpsClient(_organization, _project, _pat, _interactiveSignIn);
             var workItems = await client.GetWorkItemsCreatedByToolAsync();
 
             if (workItems.Count == 0)

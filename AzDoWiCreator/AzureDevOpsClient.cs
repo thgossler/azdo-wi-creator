@@ -15,31 +15,45 @@ public class AzureDevOpsClient : IDisposable
     private readonly string _project;
     public const string ToolTag = "azdo-wi-creator";
 
-    public AzureDevOpsClient(string organizationUrl, string project, string? pat = null)
+    public AzureDevOpsClient(string organizationUrl, string project, string? pat = null, bool interactiveSignIn = false)
     {
         _project = project;
         
         VssCredentials credentials;
         
-        // Priority order: 1) --pat argument, 2) AZURE_DEVOPS_PAT env var, 3) Interactive browser login
-        var effectivePat = pat ?? Environment.GetEnvironmentVariable("AZURE_DEVOPS_PAT");
-        
-        if (!string.IsNullOrEmpty(effectivePat))
+        // Priority order: 1) --interactive-signin flag, 2) --pat argument, 3) AZURE_DEVOPS_PAT env var, 4) Interactive browser login
+        if (interactiveSignIn)
         {
-            // Use PAT authentication
-            credentials = new VssBasicCredential(string.Empty, effectivePat);
-            Console.WriteLine("Using Personal Access Token for authentication.");
-        }
-        else
-        {
-            // Use interactive browser-based authentication (OAuth)
-            Console.WriteLine("No PAT provided. Using interactive browser-based sign-in...");
+            // Force interactive browser-based authentication (OAuth)
+            Console.WriteLine("Interactive sign-in requested. Using browser-based authentication...");
             Console.WriteLine("A browser window will open for you to sign in.");
             
             credentials = new VssClientCredentials(true)
             {
                 PromptType = CredentialPromptType.PromptIfNeeded
             };
+        }
+        else
+        {
+            var effectivePat = pat ?? Environment.GetEnvironmentVariable("AZURE_DEVOPS_PAT");
+            
+            if (!string.IsNullOrEmpty(effectivePat))
+            {
+                // Use PAT authentication
+                credentials = new VssBasicCredential(string.Empty, effectivePat);
+                Console.WriteLine("Using Personal Access Token for authentication.");
+            }
+            else
+            {
+                // Use interactive browser-based authentication (OAuth)
+                Console.WriteLine("No PAT provided. Using interactive browser-based sign-in...");
+                Console.WriteLine("A browser window will open for you to sign in.");
+                
+                credentials = new VssClientCredentials(true)
+                {
+                    PromptType = CredentialPromptType.PromptIfNeeded
+                };
+            }
         }
 
         _connection = new VssConnection(new Uri(organizationUrl), credentials);

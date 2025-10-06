@@ -37,18 +37,23 @@ dotnet publish -c Release
 
 The tool supports multiple authentication methods in priority order:
 
-1. **Command-line PAT option**: Use the `--pat` option to provide a Personal Access Token directly
+1. **Force Interactive Sign-in**: Use the `--interactive-signin` flag to force browser-based authentication (ignores PAT and environment variable)
+   ```bash
+   azdo-wi-creator create -o "https://dev.azure.com/myorg" -p "MyProject" -t "Bug" -s "feature" --interactive-signin
+   ```
+
+2. **Command-line PAT option**: Use the `--pat` option to provide a Personal Access Token directly
    ```bash
    azdo-wi-creator create -o "https://dev.azure.com/myorg" -p "MyProject" -t "Bug" -s "feature" --pat "your-pat-token"
    ```
 
-2. **Environment Variable**: Set the `AZURE_DEVOPS_PAT` environment variable
+3. **Environment Variable**: Set the `AZURE_DEVOPS_PAT` environment variable
    ```bash
    export AZURE_DEVOPS_PAT="your-pat-token"
    azdo-wi-creator create -o "https://dev.azure.com/myorg" -p "MyProject" -t "Bug" -s "feature"
    ```
 
-3. **Interactive Browser Sign-in**: If no PAT is provided, the tool will open a browser for you to sign in interactively (OAuth)
+4. **Interactive Browser Sign-in** (default): If no PAT is provided, the tool will open a browser for you to sign in interactively (OAuth)
    ```bash
    # No PAT needed - browser will open for authentication
    azdo-wi-creator create -o "https://dev.azure.com/myorg" -p "MyProject" -t "Bug" -s "feature"
@@ -79,6 +84,11 @@ azdo-wi-creator create -o "https://dev.azure.com/myorg" -p "MyProject" -t "Bug" 
 **With PAT token:**
 ```bash
 azdo-wi-creator create -o "https://dev.azure.com/myorg" -p "MyProject" -t "Bug" -s "feature" --pat "your-pat-token"
+```
+
+**Force interactive sign-in** (ignores PAT and environment variable):
+```bash
+azdo-wi-creator create -o "https://dev.azure.com/myorg" -p "MyProject" -t "Bug" -s "feature" --interactive-signin
 ```
 
 **Default command** (can omit "create"):
@@ -339,15 +349,25 @@ If you get authentication errors:
 
 1. **Verify PAT**: Ensure `AZURE_DEVOPS_PAT` is set correctly
 2. **Check permissions**: PAT needs `Work Items (Read, Write)` scope
-3. **Try Azure CLI**: Run `az login` and try again
+3. **Force interactive sign-in**: Use `--interactive-signin` to bypass PAT and environment variables
+   ```bash
+   azdo-wi-creator create -o "..." -p "..." -t "..." -s "..." --interactive-signin
+   ```
+4. **Try Azure CLI**: Run `az login` and try again
+
+**When to use `--interactive-signin`:**
+- You have `AZURE_DEVOPS_PAT` set but want to sign in as a different user
+- You want to ensure you're using OAuth tokens instead of PAT
+- Troubleshooting PAT-related authentication issues
 
 ### Field Validation Errors
 
 If work items fail to create:
 
 1. **Required fields**: Check that all mandatory fields for your work item type are included
-2. **Field names**: Use exact field reference names (e.g., `System.Title`, not just `Title`)
+2. **Field names**: You can use short names (e.g., `Title`) or fully qualified names (e.g., `System.Title`)
 3. **Simulation mode**: Use `--simulate` to preview without creating
+4. **Check warnings**: Unknown field names will show warnings - verify spelling or use fully qualified names for custom fields
 
 ### Area Path Issues
 
