@@ -28,10 +28,9 @@ public class AzureDevOpsClient : IDisposable
             Console.WriteLine("Interactive sign-in requested. Using browser-based authentication...");
             Console.WriteLine("A browser window will open for you to sign in.");
             
-            credentials = new VssClientCredentials(true)
-            {
-                PromptType = CredentialPromptType.PromptIfNeeded
-            };
+            // Use VssOAuthAccessTokenCredential with AAD token
+            // This requires the user to be signed in via their browser
+            credentials = new VssAadCredential();
         }
         else
         {
@@ -49,14 +48,30 @@ public class AzureDevOpsClient : IDisposable
                 Console.WriteLine("No PAT provided. Using interactive browser-based sign-in...");
                 Console.WriteLine("A browser window will open for you to sign in.");
                 
-                credentials = new VssClientCredentials(true)
-                {
-                    PromptType = CredentialPromptType.PromptIfNeeded
-                };
+                credentials = new VssAadCredential();
             }
         }
 
         _connection = new VssConnection(new Uri(organizationUrl), credentials);
+        
+        // Force connection to authenticate immediately to catch auth errors early
+        try
+        {
+            _connection.ConnectAsync().Wait();
+        }
+        catch (AggregateException ex)
+        {
+            var innerEx = ex.InnerException ?? ex;
+            throw new InvalidOperationException(
+                $"Authentication failed: {innerEx.Message}\n\n" +
+                "Interactive authentication with Azure DevOps is not fully supported on macOS.\n" +
+                "Please use a Personal Access Token (PAT) instead:\n" +
+                $"1. Visit {organizationUrl}/_usersSettings/tokens\n" +
+                "2. Create a new token with 'Work Items (Read, Write, & Manage)' scope\n" +
+                "3. Use --pat YOUR_TOKEN or set AZURE_DEVOPS_PAT environment variable", 
+                innerEx);
+        }
+        
         _witClient = _connection.GetClient<WorkItemTrackingHttpClient>();
     }
 

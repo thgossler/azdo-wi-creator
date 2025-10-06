@@ -1,0 +1,10 @@
+{
+  "workItems": [
+    {
+      "fields": {
+        "System.Title": "Test workitem",
+        "Problem Statement": "Updated problem statement..."
+      }
+    }
+  ]
+}

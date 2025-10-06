@@ -224,12 +224,12 @@ public class WorkItemExecutor
                     ? workItemSpec.AreaPaths 
                     : new List<string> { project };
 
+                var title = resolvedFields["System.Title"].ToString()!;
+
                 foreach (var areaPath in areaPaths)
                 {
                     try
                     {
-                    var title = workItemSpec.Fields["System.Title"].ToString()!;
-                    
                     // Check if work item already exists
                     var existingWorkItem = await client.FindExistingWorkItemAsync(_workItemType, title, areaPath);
 
@@ -275,7 +275,7 @@ public class WorkItemExecutor
                         // Create new work item
                         var createdWorkItem = await client.CreateWorkItemAsync(
                             _workItemType,
-                            workItemSpec.Fields,
+                            resolvedFields,
                             areaPath,
                             workItemSpec.Tags);
 
@@ -289,7 +289,7 @@ public class WorkItemExecutor
                 }
                 catch (Exception ex)
                 {
-                    var errorMsg = $"Error processing work item for area '{areaPath}': {ex.Message}";
+                    var errorMsg = $"Error creating work item '{title}' in area path '{areaPath}': {ex.Message}";
                     errors.Add(errorMsg);
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine($"✗ {errorMsg}");

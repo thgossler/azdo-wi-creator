@@ -150,7 +150,15 @@ public class FieldNameResolver
             try
             {
                 var resolvedName = ResolveFieldName(field.Key);
-                resolved[resolvedName] = field.Value;
+                
+                // Handle JsonElement from System.Text.Json deserialization
+                var value = field.Value;
+                if (value is System.Text.Json.JsonElement jsonElement)
+                {
+                    value = ConvertJsonElement(jsonElement);
+                }
+                
+                resolved[resolvedName] = value;
             }
             catch (ArgumentException ex)
             {
@@ -162,6 +170,25 @@ public class FieldNameResolver
         }
         
         return resolved;
+    }
+
+    /// <summary>
+    /// Converts a JsonElement to its appropriate .NET type.
+    /// </summary>
+    private static object ConvertJsonElement(System.Text.Json.JsonElement element)
+    {
+        return element.ValueKind switch
+        {
+            System.Text.Json.JsonValueKind.String => element.GetString() ?? "",
+            System.Text.Json.JsonValueKind.Number => element.TryGetInt32(out var intVal) ? intVal : element.GetDouble(),
+            System.Text.Json.JsonValueKind.True => true,
+            System.Text.Json.JsonValueKind.False => false,
+            System.Text.Json.JsonValueKind.Null => "",
+            System.Text.Json.JsonValueKind.Array => element.EnumerateArray().Select(e => ConvertJsonElement(e)).ToList(),
+            System.Text.Json.JsonValueKind.Object => element.EnumerateObject()
+                .ToDictionary(p => p.Name, p => ConvertJsonElement(p.Value)),
+            _ => element.GetRawText()
+        };
     }
 
     /// <summary>
