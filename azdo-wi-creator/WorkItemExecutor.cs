@@ -20,7 +20,7 @@ public class WorkItemExecutor
         _interactiveSignIn = interactiveSignIn;
     }
 
-    public async Task ExecuteCreateAsync(string specPath, bool simulate, bool force)
+    public async Task ExecuteCreateAsync(string specPath, bool simulate, bool force, bool forceNew = false)
     {
         try
         {
@@ -79,6 +79,12 @@ public class WorkItemExecutor
                 Console.WriteLine("⚠️  FORCE MODE ENABLED - Will update work items without tool tag!");
                 Console.ResetColor();
             }
+            if (forceNew)
+            {
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine("📝 NEW MODE ENABLED - Will always create new work items");
+                Console.ResetColor();
+            }
             Console.WriteLine();
 
             if (simulate)
@@ -87,7 +93,7 @@ public class WorkItemExecutor
             }
             else
             {
-                await ExecuteCreationAsync(spec, force);
+                await ExecuteCreationAsync(spec, force, forceNew);
             }
         }
         catch (Exception ex)
@@ -180,7 +186,7 @@ public class WorkItemExecutor
         return Task.CompletedTask;
     }
 
-    private async Task ExecuteCreationAsync(WorkItemSpecFile spec, bool force)
+    private async Task ExecuteCreationAsync(WorkItemSpecFile spec, bool force, bool forceNew)
     {
         var created = 0;
         var updated = 0;
@@ -230,8 +236,12 @@ public class WorkItemExecutor
                 {
                     try
                     {
-                    // Check if work item already exists
-                    var existingWorkItem = await client.FindExistingWorkItemAsync(_workItemType, title, areaPath);
+                    // Check if work item already exists (unless --new flag is used)
+                    WorkItem? existingWorkItem = null;
+                    if (!forceNew)
+                    {
+                        existingWorkItem = await client.FindExistingWorkItemAsync(_workItemType, title, areaPath);
+                    }
 
                     if (existingWorkItem != null)
                     {

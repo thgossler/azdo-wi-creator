@@ -14,6 +14,7 @@ public static class CommandHandler
         var interactiveSignInOption = new Option<bool>("--interactive-signin") { Description = "Force interactive browser-based sign-in, ignoring PAT token and AZURE_DEVOPS_PAT environment variable" };
         var simulateOption = new Option<bool>("--simulate") { Description = "Simulate the operation without making any changes (dry-run mode)" };
         var forceOption = new Option<bool>("--force") { Description = "⚠️  WARNING: Force update of work items even if they don't have the 'azdo-wi-creator' tag. Use with caution!" };
+        var newOption = new Option<bool>("--new") { Description = "Always create new work items instead of updating existing ones with the same title" };
 
         var command = new Command("create", "Create or update work items")
         {
@@ -24,7 +25,8 @@ public static class CommandHandler
             patOption,
             interactiveSignInOption,
             simulateOption,
-            forceOption
+            forceOption,
+            newOption
         };
 
         command.SetAction((parseResult) =>
@@ -37,9 +39,10 @@ public static class CommandHandler
             var interactiveSignIn = parseResult.GetValue(interactiveSignInOption);
             var simulate = parseResult.GetValue(simulateOption);
             var force = parseResult.GetValue(forceOption);
+            var forceNew = parseResult.GetValue(newOption);
 
             var executor = new WorkItemExecutor(organization, project, workItemType, pat, interactiveSignIn);
-            return executor.ExecuteCreateAsync(specPath, simulate, force);
+            return executor.ExecuteCreateAsync(specPath, simulate, force, forceNew);
         });
 
         return command;
