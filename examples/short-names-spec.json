@@ -1,0 +1,39 @@
+{
+  "workItems": [
+    {
+      "fields": {
+        "Title": "Test Feature - Using Short Field Names",
+        "Description": "<div><h2>Testing Field Name Resolution</h2><p>This spec file uses short field names instead of fully qualified reference names to demonstrate the automatic resolution feature.</p></div>",
+        "AcceptanceCriteria": "<div><ul><li>Field name resolver works correctly</li><li>Short names are resolved to fully qualified names</li><li>Both short and fully qualified names are supported</li></ul></div>",
+        "State": "New",
+        "Reason": "New feature",
+        "Priority": 1,
+        "Risk": "3 - Low",
+        "ValueArea": "Business",
+        "BusinessValue": 100,
+        "Effort": 5,
+        "TimeCriticality": 0.5,
+        "IterationPath": "MyProject\\Sprint 1"
+      },
+      "areaPaths": [
+        "MyProject\\Testing"
+      ],
+      "tags": "short-names, field-resolution, test"
+    },
+    {
+      "fields": {
+        "System.Title": "Test Feature - Using Fully Qualified Names",
+        "System.Description": "<div><h2>Mixed Field Name Format</h2><p>This work item uses fully qualified field names to show that both formats work together.</p></div>",
+        "Microsoft.VSTS.Common.AcceptanceCriteria": "<div><ul><li>Fully qualified names still work</li><li>Can mix short and qualified names</li></ul></div>",
+        "System.State": "Active",
+        "Microsoft.VSTS.Common.Priority": 2,
+        "Microsoft.VSTS.Common.BusinessValue": 150,
+        "Microsoft.VSTS.Scheduling.Effort": 8
+      },
+      "areaPaths": [
+        "MyProject\\Testing"
+      ],
+      "tags": "fully-qualified, mixed-format, test"
+    }
+  ]
+}

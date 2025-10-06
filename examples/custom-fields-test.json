@@ -1,0 +1,15 @@
+{
+  "workItems": [
+    {
+      "fields": {
+        "Title": "Test with Unknown Custom Field",
+        "Description": "<div><p>Testing unknown field handling.</p></div>",
+        "Custom.MyCustomField": "This is a custom field - should work as-is",
+        "UnknownShortName": "This should show a warning",
+        "Priority": 1
+      },
+      "areaPaths": ["MyProject\\Test"],
+      "tags": "custom-fields, test"
+    }
+  ]
+}

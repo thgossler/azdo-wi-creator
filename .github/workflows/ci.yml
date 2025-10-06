@@ -1,0 +1,60 @@
+name: CI Build
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore AzDoWiCreator/AzDoWiCreator.csproj
+
+      - name: Build
+        run: dotnet build AzDoWiCreator/AzDoWiCreator.csproj -c Release --no-restore
+
+      - name: Test Build (Ubuntu - linux-x64)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          dotnet publish AzDoWiCreator/AzDoWiCreator.csproj \
+            -c Release \
+            -r linux-x64 \
+            --self-contained true \
+            -p:PublishSingleFile=true \
+            -o ./test-publish
+
+      - name: Test Build (Windows - win-x64)
+        if: matrix.os == 'windows-latest'
+        run: |
+          dotnet publish AzDoWiCreator/AzDoWiCreator.csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -o ./test-publish
+
+      - name: Test Build (macOS - osx-arm64)
+        if: matrix.os == 'macos-latest'
+        run: |
+          dotnet publish AzDoWiCreator/AzDoWiCreator.csproj \
+            -c Release \
+            -r osx-arm64 \
+            --self-contained true \
+            -p:PublishSingleFile=true \
+            -o ./test-publish

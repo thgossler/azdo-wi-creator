@@ -1,0 +1,87 @@
+{
+  "workItems": [
+    {
+      "fields": {
+        "System.Title": "Customer Portal - Self-Service Account Management",
+        "System.Description": "<div><h2>Feature Overview</h2><p>Enable customers to manage their accounts independently through a self-service portal, reducing support ticket volume and improving customer satisfaction.</p><h3>Background</h3><p>Currently, customers must contact support for basic account changes like updating contact information, resetting passwords, or viewing billing history. This creates unnecessary support load and delays for customers.</p><h3>Business Value</h3><ul><li>Reduce support ticket volume by an estimated 30%</li><li>Improve customer satisfaction scores</li><li>Decrease time-to-resolution for account-related issues</li><li>Enable 24/7 self-service capabilities</li></ul></div>",
+        "Microsoft.VSTS.Common.AcceptanceCriteria": "<div><h3>Acceptance Criteria</h3><ol><li><strong>User Profile Management</strong><ul><li>Users can view their complete profile information</li><li>Users can edit contact details (email, phone, address)</li><li>Changes are validated in real-time</li><li>Email verification required for email changes</li></ul></li><li><strong>Password Management</strong><ul><li>Users can change password with current password verification</li><li>Password reset via email with secure token (expires in 1 hour)</li><li>Password strength requirements enforced (min 12 chars, complexity rules)</li><li>Password history prevents reuse of last 5 passwords</li></ul></li><li><strong>Billing & Payment</strong><ul><li>Users can view billing history for past 24 months</li><li>Users can download invoices as PDF</li><li>Users can update payment methods securely</li><li>PCI DSS compliance maintained</li></ul></li><li><strong>Security & Notifications</strong><ul><li>Multi-factor authentication (MFA) can be enabled/disabled</li><li>Session management - view active sessions and revoke access</li><li>Email notifications for all account changes</li><li>Audit log of all profile modifications</li></ul></li><li><strong>Performance & Quality</strong><ul><li>Page load time &lt; 2 seconds for all views</li><li>Mobile responsive design (works on tablets and phones)</li><li>WCAG 2.1 Level AA accessibility compliance</li><li>99.9% uptime SLA</li></ul></li></ol></div>",
+        "System.State": "New",
+        "System.Reason": "New feature",
+        "Microsoft.VSTS.Common.Priority": 1,
+        "Microsoft.VSTS.Common.Risk": "2 - Medium",
+        "Microsoft.VSTS.Common.ValueArea": "Business",
+        "Microsoft.VSTS.Scheduling.TargetDate": "2025-12-31T00:00:00Z",
+        "Microsoft.VSTS.Common.BusinessValue": 500,
+        "Microsoft.VSTS.Scheduling.Effort": 40,
+        "Microsoft.VSTS.Common.TimeCriticality": 0.75,
+        "System.AssignedTo": "",
+        "System.IterationPath": "MyProject\\Sprint 1",
+        "Microsoft.VSTS.CMMI.RequiredAttendee1": "",
+        "Microsoft.VSTS.CMMI.RequiredAttendee2": "",
+        "Microsoft.VSTS.CMMI.OptionalAttendee1": "",
+        "Microsoft.VSTS.CMMI.OptionalAttendee2": "",
+        "System.History": "<div>Feature created as part of Q4 2025 Customer Experience initiative. Aligned with strategic goal of reducing operational costs while improving customer satisfaction.</div>"
+      },
+      "areaPaths": [
+        "MyProject\\Customer Portal",
+        "MyProject\\Customer Portal\\Frontend",
+        "MyProject\\Customer Portal\\Backend",
+        "MyProject\\Security"
+      ],
+      "tags": "customer-portal, self-service, q4-2025, high-priority, cost-reduction"
+    },
+    {
+      "fields": {
+        "System.Title": "Advanced Search and Filtering - Product Catalog",
+        "System.Description": "<div><h2>Feature Description</h2><p>Implement comprehensive search and filtering capabilities for our product catalog to help customers find products quickly and improve conversion rates.</p><h3>Current State</h3><p>The current search only supports basic keyword matching. Customers report difficulty finding specific products, especially when browsing large categories.</p><h3>Proposed Solution</h3><p>Build an advanced search system with:</p><ul><li>Full-text search with fuzzy matching</li><li>Faceted filtering (price, brand, ratings, availability)</li><li>Search suggestions and autocomplete</li><li>Recently viewed and popular items</li><li>Save search filters as presets</li></ul><h3>Success Metrics</h3><ul><li>Increase search-to-purchase conversion by 15%</li><li>Reduce average time to find product by 40%</li><li>Improve customer satisfaction score by 10 points</li></ul></div>",
+        "Microsoft.VSTS.Common.AcceptanceCriteria": "<div><h3>Must Have (MVP)</h3><ol><li><strong>Search Functionality</strong><ul><li>Real-time search with debouncing (300ms)</li><li>Search across product name, description, SKU, and tags</li><li>Fuzzy matching for typos (Levenshtein distance &lt;= 2)</li><li>Highlight search terms in results</li></ul></li><li><strong>Filtering</strong><ul><li>Filter by price range (slider and manual input)</li><li>Filter by brand (multi-select checkbox)</li><li>Filter by customer rating (4+ stars, 3+ stars, etc.)</li><li>Filter by availability (In Stock, Out of Stock, Pre-order)</li><li>Filter by category and subcategory</li><li>Show result count for each filter option</li></ul></li><li><strong>Sorting</strong><ul><li>Sort by relevance (default)</li><li>Sort by price (low to high, high to low)</li><li>Sort by newest first</li><li>Sort by customer rating</li><li>Sort by popularity (most purchased)</li></ul></li></ol><h3>Nice to Have</h3><ul><li>Save filter combinations as presets</li><li>Search history for logged-in users</li><li>AI-powered product recommendations</li><li>Voice search capability</li></ul><h3>Non-Functional Requirements</h3><ul><li>Search response time &lt; 500ms for 95th percentile</li><li>Support 1000 concurrent users</li><li>Maintain full functionality on mobile devices</li><li>Accessible keyboard navigation</li></ul></div>",
+        "System.State": "Active",
+        "System.Reason": "Implementation started",
+        "Microsoft.VSTS.Common.Priority": 2,
+        "Microsoft.VSTS.Common.Risk": "3 - Low",
+        "Microsoft.VSTS.Common.ValueArea": "Business",
+        "Microsoft.VSTS.Scheduling.TargetDate": "2025-11-15T00:00:00Z",
+        "Microsoft.VSTS.Common.BusinessValue": 350,
+        "Microsoft.VSTS.Scheduling.Effort": 25,
+        "Microsoft.VSTS.Common.TimeCriticality": 0.85,
+        "System.AssignedTo": "john.doe@company.com",
+        "System.IterationPath": "MyProject\\Sprint 2",
+        "System.History": "<div>Approved in product planning meeting on 2025-09-15. Technical spike completed showing feasibility with Elasticsearch.</div>"
+      },
+      "areaPaths": [
+        "MyProject\\Product Catalog",
+        "MyProject\\Search Infrastructure"
+      ],
+      "tags": "search, filtering, ux-improvement, conversion-optimization, mvp"
+    },
+    {
+      "fields": {
+        "System.Title": "Inventory Management - Real-Time Stock Updates",
+        "System.Description": "<div><h2>Feature: Real-Time Inventory Synchronization</h2><p>Implement real-time inventory tracking and synchronization across all sales channels to prevent overselling and improve fulfillment accuracy.</p><h3>Problem Statement</h3><p>Current inventory system updates every 15 minutes, causing:</p><ul><li>Overselling of popular items during flash sales</li><li>Customer disappointment and refunds</li><li>Inventory discrepancies between channels (web, mobile, in-store)</li><li>Manual reconciliation work for operations team</li></ul><h3>Proposed Solution</h3><p>Build a real-time event-driven inventory system using message queues and WebSocket connections for live updates.</p><h3>Technical Approach</h3><ul><li>Event-driven architecture with Apache Kafka</li><li>WebSocket connections for real-time UI updates</li><li>Optimistic locking with version control</li><li>Automatic reservation system (5-minute hold during checkout)</li><li>Multi-warehouse inventory allocation</li></ul></div>",
+        "Microsoft.VSTS.Common.AcceptanceCriteria": "<div><h3>Core Requirements</h3><ol><li><strong>Real-Time Stock Updates</strong><ul><li>Stock levels update within 1 second across all channels</li><li>WebSocket push notifications to connected clients</li><li>Graceful degradation to polling if WebSocket fails</li><li>Show \"X items left\" when stock &lt; 10</li></ul></li><li><strong>Reservation System</strong><ul><li>Items reserved for 5 minutes when added to cart</li><li>Automatic release after timeout or checkout completion</li><li>Visual indicator showing \"X in cart\" for other users</li><li>Priority queue for abandoned cart items</li></ul></li><li><strong>Multi-Warehouse Support</strong><ul><li>Allocate inventory from nearest warehouse</li><li>Automatic failover to backup warehouse if primary out of stock</li><li>Split orders across warehouses if needed</li><li>Show estimated delivery time based on warehouse location</li></ul></li><li><strong>Overselling Prevention</strong><ul><li>Atomic decrement operations (database level)</li><li>Distributed locks for concurrent transactions</li><li>Stock reconciliation job (hourly verification)</li><li>Alert system for negative stock conditions</li></ul></li><li><strong>Monitoring & Alerting</strong><ul><li>Real-time dashboard showing inventory status</li><li>Low stock alerts (threshold: 10% of average daily sales)</li><li>Out-of-stock notifications to merchandising team</li><li>Reorder point calculations and suggestions</li></ul></li></ol><h3>Performance Requirements</h3><ul><li>Handle 10,000 concurrent inventory transactions/second</li><li>99.99% accuracy for stock counts</li><li>Zero data loss during system failures</li><li>Complete inventory sync across all warehouses within 5 seconds</li></ul></div>",
+        "System.State": "New",
+        "System.Reason": "New feature",
+        "Microsoft.VSTS.Common.Priority": 1,
+        "Microsoft.VSTS.Common.Risk": "1 - High",
+        "Microsoft.VSTS.Common.ValueArea": "Business",
+        "Microsoft.VSTS.Scheduling.TargetDate": "2026-01-31T00:00:00Z",
+        "Microsoft.VSTS.Common.BusinessValue": 800,
+        "Microsoft.VSTS.Scheduling.Effort": 60,
+        "Microsoft.VSTS.Common.TimeCriticality": 0.95,
+        "System.AssignedTo": "jane.smith@company.com",
+        "System.IterationPath": "MyProject\\Sprint 3",
+        "Microsoft.VSTS.CMMI.RequiredAttendee1": "john.doe@company.com",
+        "Microsoft.VSTS.CMMI.RequiredAttendee2": "mike.jones@company.com",
+        "Microsoft.VSTS.CMMI.OptionalAttendee1": "sarah.williams@company.com",
+        "System.History": "<div><p><strong>2025-09-20:</strong> Initial proposal submitted by Product Management</p><p><strong>2025-09-25:</strong> Technical feasibility study completed - recommended Kafka + Redis approach</p><p><strong>2025-10-01:</strong> Architecture review approved with modifications</p><p><strong>2025-10-05:</strong> Budget approved - $250K for infrastructure and development</p></div>"
+      },
+      "areaPaths": [
+        "MyProject\\Inventory",
+        "MyProject\\Warehouse Management",
+        "MyProject\\Infrastructure"
+      ],
+      "tags": "inventory, real-time, high-priority, infrastructure, kafka, websocket, critical-path"
+    }
+  ]
+}
+

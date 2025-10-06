@@ -1,0 +1,113 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build for ${{ matrix.os }} ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - os: windows
+            arch: x64
+            runner: windows-latest
+            rid: win-x64
+            artifact: azdo-wi-creator-win-x64.exe
+          - os: windows
+            arch: arm64
+            runner: windows-latest
+            rid: win-arm64
+            artifact: azdo-wi-creator-win-arm64.exe
+          - os: linux
+            arch: x64
+            runner: ubuntu-latest
+            rid: linux-x64
+            artifact: azdo-wi-creator-linux-x64
+          - os: linux
+            arch: arm64
+            runner: ubuntu-latest
+            rid: linux-arm64
+            artifact: azdo-wi-creator-linux-arm64
+          - os: macos
+            arch: x64
+            runner: macos-latest
+            rid: osx-x64
+            artifact: azdo-wi-creator-osx-x64
+          - os: macos
+            arch: arm64
+            runner: macos-latest
+            rid: osx-arm64
+            artifact: azdo-wi-creator-osx-arm64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore AzDoWiCreator/AzDoWiCreator.csproj
+
+      - name: Build
+        run: dotnet build AzDoWiCreator/AzDoWiCreator.csproj -c Release --no-restore
+
+      - name: Publish
+        run: |
+          dotnet publish AzDoWiCreator/AzDoWiCreator.csproj \
+            -c Release \
+            -r ${{ matrix.rid }} \
+            --self-contained true \
+            -p:PublishSingleFile=true \
+            -p:PublishTrimmed=false \
+            -p:IncludeNativeLibrariesForSelfExtract=true \
+            -o ./publish/${{ matrix.rid }}
+
+      - name: Rename artifact (Unix)
+        if: matrix.os != 'windows'
+        run: |
+          mv ./publish/${{ matrix.rid }}/azdo-wi-creator ./publish/${{ matrix.rid }}/${{ matrix.artifact }}
+          chmod +x ./publish/${{ matrix.rid }}/${{ matrix.artifact }}
+
+      - name: Rename artifact (Windows)
+        if: matrix.os == 'windows'
+        run: |
+          Move-Item -Path ./publish/${{ matrix.rid }}/azdo-wi-creator.exe -Destination ./publish/${{ matrix.rid }}/${{ matrix.artifact }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ./publish/${{ matrix.rid }}/${{ matrix.artifact }}
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ./artifacts/**/*
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
