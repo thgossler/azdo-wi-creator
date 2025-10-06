@@ -6,12 +6,12 @@ namespace AzDoWiCreator;
 public class WorkItemExecutor
 {
     private readonly string _organization;
-    private readonly string _project;
+    private readonly string? _project;
     private readonly string _workItemType;
     private readonly string? _pat;
     private readonly bool _interactiveSignIn;
 
-    public WorkItemExecutor(string organization, string project, string workItemType, string? pat = null, bool interactiveSignIn = false)
+    public WorkItemExecutor(string organization, string? project, string workItemType, string? pat = null, bool interactiveSignIn = false)
     {
         _organization = organization;
         _project = project;
@@ -40,9 +40,37 @@ public class WorkItemExecutor
                 return;
             }
 
+            // Validate that each work item has a project (either from spec or from command line)
+            var workItemsWithoutProject = spec.WorkItems
+                .Where(wi => string.IsNullOrWhiteSpace(wi.Project) && string.IsNullOrWhiteSpace(_project))
+                .ToList();
+            
+            if (workItemsWithoutProject.Any())
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Error: {workItemsWithoutProject.Count} work item(s) do not have a project specified.");
+                Console.WriteLine("Either specify --project on command line as default, or add \"project\" field to each work item in the spec file.");
+                Console.ResetColor();
+                return;
+            }
+
+            // Get unique projects involved
+            var projects = spec.WorkItems
+                .Select(wi => wi.Project ?? _project)
+                .Distinct()
+                .OrderBy(p => p)
+                .ToList();
+
             Console.WriteLine($"\nLoaded {spec.WorkItems.Count} work item specification(s)");
             Console.WriteLine($"Organization: {_organization}");
-            Console.WriteLine($"Project: {_project}");
+            if (projects.Count == 1)
+            {
+                Console.WriteLine($"Project: {projects[0]}");
+            }
+            else
+            {
+                Console.WriteLine($"Projects: {string.Join(", ", projects)} ({projects.Count} projects)");
+            }
             Console.WriteLine($"Work Item Type: {_workItemType}");
             Console.WriteLine($"Mode: {(simulate ? "SIMULATION (no changes will be made)" : "EXECUTION")}");
             if (force)
@@ -81,6 +109,9 @@ public class WorkItemExecutor
 
         foreach (var workItem in spec.WorkItems)
         {
+            // Determine the project for this work item
+            var project = workItem.Project ?? _project;
+            
             // Resolve field names
             Dictionary<string, object> resolvedFields;
             try
@@ -97,7 +128,7 @@ public class WorkItemExecutor
 
             var areaPaths = workItem.AreaPaths.Count > 0 
                 ? workItem.AreaPaths 
-                : new List<string> { _project };
+                : new List<string> { project! };
 
             foreach (var areaPath in areaPaths)
             {
@@ -107,6 +138,7 @@ public class WorkItemExecutor
                 Console.WriteLine($"Would create work item #{totalWorkItems}:");
                 Console.ResetColor();
                 
+                Console.WriteLine($"  Project: {project}");
                 Console.WriteLine($"  Type: {_workItemType}");
                 Console.WriteLine($"  Area Path: {areaPath}");
                 Console.WriteLine($"  State: New");
@@ -150,42 +182,52 @@ public class WorkItemExecutor
 
     private async Task ExecuteCreationAsync(WorkItemSpecFile spec, bool force)
     {
-        using var client = new AzureDevOpsClient(_organization, _project, _pat, _interactiveSignIn);
-
         var created = 0;
         var updated = 0;
         var skipped = 0;
         var errors = new List<string>();
 
-        foreach (var workItemSpec in spec.WorkItems)
+        // Group work items by project for efficient processing
+        var workItemsByProject = spec.WorkItems
+            .GroupBy(wi => wi.Project ?? _project)
+            .ToList();
+
+        foreach (var projectGroup in workItemsByProject)
         {
-            // Resolve field names (supports both short names like "Title" and fully qualified names like "System.Title")
-            Dictionary<string, object> resolvedFields;
-            try
-            {
-                resolvedFields = FieldNameResolver.ResolveFields(workItemSpec.Fields);
-            }
-            catch (ArgumentException ex)
-            {
-                errors.Add($"Field resolution error: {ex.Message}");
-                continue;
-            }
+            var project = projectGroup.Key!;
+            Console.WriteLine($"\n--- Processing project: {project} ---");
+            
+            using var client = new AzureDevOpsClient(_organization, project, _pat, _interactiveSignIn);
 
-            // Validate required fields
-            if (!resolvedFields.ContainsKey("System.Title"))
+            foreach (var workItemSpec in projectGroup)
             {
-                errors.Add("Work item specification must contain 'System.Title' field (or 'Title')");
-                continue;
-            }
-
-            var areaPaths = workItemSpec.AreaPaths.Count > 0 
-                ? workItemSpec.AreaPaths 
-                : new List<string> { _project };
-
-            foreach (var areaPath in areaPaths)
-            {
+                // Resolve field names (supports both short names like "Title" and fully qualified names like "System.Title")
+                Dictionary<string, object> resolvedFields;
                 try
                 {
+                    resolvedFields = FieldNameResolver.ResolveFields(workItemSpec.Fields);
+                }
+                catch (ArgumentException ex)
+                {
+                    errors.Add($"Field resolution error: {ex.Message}");
+                    continue;
+                }
+
+                // Validate required fields
+                if (!resolvedFields.ContainsKey("System.Title"))
+                {
+                    errors.Add("Work item specification must contain 'System.Title' field (or 'Title')");
+                    continue;
+                }
+
+                var areaPaths = workItemSpec.AreaPaths.Count > 0 
+                    ? workItemSpec.AreaPaths 
+                    : new List<string> { project };
+
+                foreach (var areaPath in areaPaths)
+                {
+                    try
+                    {
                     var title = workItemSpec.Fields["System.Title"].ToString()!;
                     
                     // Check if work item already exists
@@ -224,7 +266,7 @@ public class WorkItemExecutor
                         Console.ForegroundColor = ConsoleColor.Blue;
                         Console.WriteLine($"✓ Updated work item #{updatedWorkItem.Id}: {title}");
                         Console.WriteLine($"  Area Path: {areaPath}");
-                        Console.WriteLine($"  URL: {_organization}/{_project}/_workitems/edit/{updatedWorkItem.Id}");
+                        Console.WriteLine($"  URL: {_organization}/{project}/_workitems/edit/{updatedWorkItem.Id}");
                         Console.ResetColor();
                         updated++;
                     }
@@ -240,7 +282,7 @@ public class WorkItemExecutor
                         Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine($"✓ Created work item #{createdWorkItem.Id}: {title}");
                         Console.WriteLine($"  Area Path: {areaPath}");
-                        Console.WriteLine($"  URL: {_organization}/{_project}/_workitems/edit/{createdWorkItem.Id}");
+                        Console.WriteLine($"  URL: {_organization}/{project}/_workitems/edit/{createdWorkItem.Id}");
                         Console.ResetColor();
                         created++;
                     }
@@ -255,6 +297,7 @@ public class WorkItemExecutor
                 }
             }
         }
+        } // End of projectGroup foreach
 
         // Print summary
         Console.WriteLine();
@@ -289,6 +332,15 @@ public class WorkItemExecutor
     {
         try
         {
+            if (string.IsNullOrWhiteSpace(_project))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error: --project is required for the list command.");
+                Console.ResetColor();
+                Environment.Exit(1);
+                return;
+            }
+
             Console.WriteLine($"\nListing work items created by this tool...");
             Console.WriteLine($"Organization: {_organization}");
             Console.WriteLine($"Project: {_project}");

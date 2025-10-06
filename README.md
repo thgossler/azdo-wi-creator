@@ -5,6 +5,7 @@ A command-line tool for creating and managing Azure DevOps work items in bulk fr
 ## Features
 
 - ✅ Create or update multiple work items from JSON specifications
+- ✅ Support for multiple projects in a single spec file
 - ✅ Support for multiple area paths (creates one work item per area path)
 - ✅ Automatic tagging with `azdo-wi-creator` for tracking
 - ✅ Smart spec file resolution (local paths, URLs, or simple names)
@@ -13,6 +14,7 @@ A command-line tool for creating and managing Azure DevOps work items in bulk fr
 - ✅ List all work items created by the tool
 - ✅ Cross-platform support (Windows, Linux, macOS - x64 and ARM64)
 - ✅ Self-contained single-file executable
+- ✅ Short field name support (use "Title" instead of "System.Title")
 
 ## Installation
 
@@ -75,6 +77,8 @@ azdo-wi-creator create \
   --type "Bug" \
   --spec "feature-spec.json"
 ```
+
+**Note**: The `--project` option is now optional if you specify the project in your spec file. See [Multi-Project Support](#multi-project-support) below.
 
 **Short form:**
 ```bash
@@ -172,8 +176,6 @@ Create a JSON file with your work item specifications:
 
 **Custom fields**: Always use fully qualified names (e.g., `Custom.MyCompanyField`)
 
-See [examples/FEATURE-FIELDS-REFERENCE.md](examples/FEATURE-FIELDS-REFERENCE.md#field-name-resolution) for complete list.
-
 ### Field Mapping
 
 Common work item fields:
@@ -210,6 +212,53 @@ The tool supports multiple ways to specify the spec file:
    - `feature-spec.json` (case-insensitive)
    - In the current working directory
 
+### Multi-Project Support
+
+**New feature**: You can now create work items across multiple projects in a single spec file!
+
+Each work item can specify its own `project` field:
+
+```json
+{
+  "workItems": [
+    {
+      "project": "ProjectAlpha",
+      "fields": {
+        "Title": "Feature in Project Alpha",
+        "Description": "<div>This goes to ProjectAlpha</div>"
+      },
+      "areaPaths": ["ProjectAlpha\\Team1"]
+    },
+    {
+      "project": "ProjectBeta",
+      "fields": {
+        "Title": "Feature in Project Beta",
+        "Description": "<div>This goes to ProjectBeta</div>"
+      },
+      "areaPaths": ["ProjectBeta\\Team2"]
+    }
+  ]
+}
+```
+
+**Usage options:**
+
+1. **All projects in spec file** (no --project needed):
+   ```bash
+   azdo-wi-creator create -o "https://dev.azure.com/myorg" -t "Feature" -s "multi-project-spec.json"
+   ```
+
+2. **Mix of spec and command-line** (--project as fallback):
+   ```bash
+   # Work items without "project" field will use "DefaultProject"
+   azdo-wi-creator create -o "https://dev.azure.com/myorg" -p "DefaultProject" -t "Feature" -s "spec.json"
+   ```
+
+3. **Single project** (legacy style, still supported):
+   ```bash
+   azdo-wi-creator create -o "https://dev.azure.com/myorg" -p "MyProject" -t "Feature" -s "spec.json"
+   ```
+
 ## How It Works
 
 1. **Creation**: When creating work items, the tool automatically adds a `azdo-wi-creator` tag
@@ -217,6 +266,7 @@ The tool supports multiple ways to specify the spec file:
 3. **Protection**: By default, the tool refuses to update work items without the `azdo-wi-creator` tag
 4. **State Preservation**: When updating, the State field is preserved (not reset to "New")
 5. **Multiple Area Paths**: Each area path specified creates a separate work item with the same details
+6. **Multiple Projects**: Work items are grouped by project for efficient processing
 
 ## Examples
 
@@ -224,8 +274,8 @@ The tool supports multiple ways to specify the spec file:
 
 See the [examples/](examples/) directory for complete sample spec files:
 - **[Feature-spec.json](examples/Feature-spec.json)** - Comprehensive Feature work items with all Azure DevOps Scrum fields
+- **[multi-project-spec.json](examples/multi-project-spec.json)** - Work items across multiple projects
 - **[short-names-spec.json](examples/short-names-spec.json)** - Demonstrates short field name usage
-- **[FEATURE-FIELDS-REFERENCE.md](examples/FEATURE-FIELDS-REFERENCE.md)** - Complete field reference documentation
 
 ### Example 1: Create bugs for multiple teams
 
@@ -303,7 +353,55 @@ Would create 1 work item(s)
 
 All short names like `Title`, `Priority`, `BusinessValue` are automatically resolved!
 
-### Example 4: Loading from URL
+### Example 4: Multi-project work items
+
+**multi-project-spec.json:**
+```json
+{
+  "workItems": [
+    {
+      "project": "ProjectAlpha",
+      "fields": {
+        "Title": "Implement User Authentication",
+        "Priority": 1,
+        "BusinessValue": 300
+      },
+      "areaPaths": ["ProjectAlpha\\Backend", "ProjectAlpha\\Security"]
+    },
+    {
+      "project": "ProjectBeta",
+      "fields": {
+        "Title": "API Rate Limiting",
+        "Priority": 1,
+        "BusinessValue": 200
+      },
+      "areaPaths": ["ProjectBeta\\API"]
+    }
+  ]
+}
+```
+
+```bash
+# No --project needed when all work items specify their project
+azdo-wi-creator create -o "https://dev.azure.com/myorg" -t "Feature" -s "multi-project-spec.json"
+```
+
+Output shows projects being processed:
+```
+Loaded 2 work item specification(s)
+Organization: https://dev.azure.com/myorg
+Projects: ProjectAlpha, ProjectBeta (2 projects)
+Work Item Type: Feature
+
+--- Processing project: ProjectAlpha ---
+✓ Created work item #123: Implement User Authentication
+✓ Created work item #124: Implement User Authentication
+
+--- Processing project: ProjectBeta ---
+✓ Created work item #125: API Rate Limiting
+```
+
+### Example 5: Loading from URL
 
 ```bash
 azdo-wi-creator -o "https://dev.azure.com/myorg" -p "MyProject" -t "User Story" \

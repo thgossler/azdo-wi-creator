@@ -5,6 +5,9 @@ namespace AzDoWiCreator;
 
 public class WorkItemSpec
 {
+    [JsonPropertyName("project")]
+    public string? Project { get; set; }
+
     [JsonPropertyName("fields")]
     public Dictionary<string, object> Fields { get; set; } = new();
 

@@ -1,0 +1,84 @@
+{
+  "workItems": [
+    {
+      "project": "ProjectAlpha",
+      "fields": {
+        "Title": "Implement User Authentication",
+        "Description": "<div><p>Add user authentication system using OAuth 2.0</p></div>",
+        "Priority": 1,
+        "BusinessValue": 300,
+        "Effort": 20,
+        "State": "New"
+      },
+      "areaPaths": [
+        "ProjectAlpha\\Backend",
+        "ProjectAlpha\\Security"
+      ],
+      "tags": "security, oauth, backend"
+    },
+    {
+      "project": "ProjectAlpha",
+      "fields": {
+        "Title": "User Profile Management UI",
+        "Description": "<div><p>Create user interface for managing user profiles</p></div>",
+        "Priority": 2,
+        "BusinessValue": 150,
+        "Effort": 13,
+        "State": "New"
+      },
+      "areaPaths": [
+        "ProjectAlpha\\Frontend"
+      ],
+      "tags": "ui, frontend, user-profile"
+    },
+    {
+      "project": "ProjectBeta",
+      "fields": {
+        "Title": "API Rate Limiting",
+        "Description": "<div><p>Implement rate limiting for API endpoints to prevent abuse</p></div>",
+        "Priority": 1,
+        "BusinessValue": 200,
+        "Effort": 8,
+        "State": "New",
+        "Risk": "Medium"
+      },
+      "areaPaths": [
+        "ProjectBeta\\API",
+        "ProjectBeta\\Infrastructure"
+      ],
+      "tags": "api, rate-limiting, infrastructure"
+    },
+    {
+      "project": "ProjectBeta",
+      "fields": {
+        "Title": "Monitoring Dashboard",
+        "Description": "<div><p>Create real-time monitoring dashboard for API health metrics</p></div>",
+        "Priority": 2,
+        "BusinessValue": 180,
+        "Effort": 15,
+        "State": "New"
+      },
+      "areaPaths": [
+        "ProjectBeta\\Monitoring"
+      ],
+      "tags": "monitoring, dashboard, observability"
+    },
+    {
+      "project": "ProjectGamma",
+      "fields": {
+        "Title": "Database Performance Optimization",
+        "Description": "<div><p>Optimize slow-running queries and add proper indexing</p></div>",
+        "Priority": 1,
+        "BusinessValue": 250,
+        "Effort": 10,
+        "State": "New",
+        "Risk": "Low"
+      },
+      "areaPaths": [
+        "ProjectGamma\\Database",
+        "ProjectGamma\\Performance"
+      ],
+      "tags": "database, performance, optimization"
+    }
+  ]
+}
