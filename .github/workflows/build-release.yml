@@ -54,14 +54,14 @@ jobs:
           dotnet-version: '9.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore AzDoWiCreator/AzDoWiCreator.csproj
+        run: dotnet restore azdo-wi-creator/azdo-wi-creator.csproj
 
       - name: Build
-        run: dotnet build AzDoWiCreator/AzDoWiCreator.csproj -c Release --no-restore
+        run: dotnet build azdo-wi-creator/azdo-wi-creator.csproj -c Release --no-restore
 
       - name: Publish
         run: |
-          dotnet publish AzDoWiCreator/AzDoWiCreator.csproj \
+          dotnet publish azdo-wi-creator/azdo-wi-creator.csproj \
             -c Release \
             -r ${{ matrix.rid }} \
             --self-contained true \

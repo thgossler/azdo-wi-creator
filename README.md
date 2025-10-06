@@ -31,7 +31,7 @@ Or build from source:
 
 ```bash
 git clone <repository-url>
-cd AzDoWiCreator
+cd azdo-wi-creator
 dotnet publish -c Release
 ```
 
