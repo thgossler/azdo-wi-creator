@@ -1,0 +1,41 @@
+{
+    // This is a single-line comment explaining the spec file
+    /* 
+     * This is a multi-line comment
+     * You can use it to provide detailed explanations
+     * about your work items
+     */
+    "workItems": [
+        {
+            "project": "DS Portfolio Management",
+            "fields": {
+                // Title field is required
+                "Title": "Example with Comments Support",
+                
+                /* Problem Statement can use HTML formatting
+                   Make sure to escape properly */
+                "Problem Statement": "<div><p>This work item demonstrates comment support</p></div>",
+                
+                "Feature Hypothesis": "",
+                "Objectives and Key Results": "",
+                "Key subject experts": "",
+                "External Dependencies": "",
+                "Non Functional Requirements": "",
+                "State": "New" // State can be: New, Active, Resolved, Closed
+            },
+            // Area paths define where the work item belongs
+            "areaPaths": [
+                "DS Portfolio Management\\teamplay Operations",
+                // You can comment out area paths you don't need:
+                // "DS Portfolio Management\\Edge Platform (Edge V2)",
+                "DS Portfolio Management\\teamplay Platform\\Core"
+            ],
+            /* 
+             * Tags help categorize and filter work items
+             * Use comma-separated values
+             */
+            "tags": "example, comments, documentation"
+        }
+        // Add more work items here
+    ]
+}

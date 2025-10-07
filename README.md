@@ -5,6 +5,7 @@ A command-line tool for creating and managing Azure DevOps work items in bulk fr
 ## Features
 
 - ✅ Create or update multiple work items from JSON specifications
+- ✅ Support for comments in JSON spec files (single-line `//` and multi-line `/* */`)
 - ✅ Support for multiple projects in a single spec file
 - ✅ Support for multiple area paths (creates one work item per area path)
 - ✅ Automatic tagging with `azdo-wi-creator` for tracking
@@ -147,9 +148,46 @@ Create a JSON file with your work item specifications:
 }
 ```
 
+### Comments Support
+
+You can use comments to document your spec files, explain decisions, or temporarily disable sections:
+
+```json
+{
+    // This is a single-line comment
+    /* 
+     * This is a multi-line comment
+     * explaining the work items below
+     */
+    "workItems": [
+        {
+            "project": "MyProject",
+            "fields": {
+                // Title field is required
+                "Title": "Example Feature",
+                "Description": "<div>Feature description</div>",
+                "State": "New" // Can be: New, Active, Resolved, Closed
+            },
+            // Area paths define where the work item belongs
+            "areaPaths": [
+                "MyProject\\Team1",
+                // You can comment out paths you don't need:
+                // "MyProject\\Team2",
+                "MyProject\\Team3"
+            ],
+            /* Tags help categorize work items */
+            "tags": "example, feature"
+        }
+        // Add more work items here
+    ]
+}
+```
+
+**Note**: Your editor may show syntax warnings about comments in JSON files, but the tool handles them correctly. In Visual Studio Code use the JSONC syntax mode to avoid syntax error for "JSON with Comments" (jsonc).
+
 ### Field Name Resolution
 
-**New feature**: You can use **short field names** for convenience! The tool automatically resolves them to fully qualified Azure DevOps reference names.
+You can use **short field names** for convenience! The tool automatically resolves them to fully qualified Azure DevOps reference names.
 
 **Both formats work:**
 
@@ -214,7 +252,7 @@ The tool supports multiple ways to specify the spec file:
 
 ### Multi-Project Support
 
-**New feature**: You can now create work items across multiple projects in a single spec file!
+You can create work items across multiple projects in a single spec file!
 
 Each work item can specify its own `project` field:
 
@@ -276,6 +314,7 @@ See the [examples/](examples/) directory for complete sample spec files:
 - **[Feature-spec.json](examples/Feature-spec.json)** - Comprehensive Feature work items with all Azure DevOps Scrum fields
 - **[multi-project-spec.json](examples/multi-project-spec.json)** - Work items across multiple projects
 - **[short-names-spec.json](examples/short-names-spec.json)** - Demonstrates short field name usage
+- **[comments-example-spec.json](examples/comments-example-spec.json)** - Shows how to use comments in spec files
 
 ### Example 1: Create bugs for multiple teams
 
