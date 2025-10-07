@@ -587,6 +587,108 @@ dotnet publish -c Release -r osx-arm64 --self-contained -p:PublishSingleFile=tru
 
 See the `.github/workflows/` directory for automated build workflows that create releases for all platforms.
 
+## Publishing Release Binaries
+
+This document describes how to build and publish single-file executables for all supported platforms.
+
+### Quick Start
+
+To publish binaries for all platforms at once:
+
+```bash
+./publish-all.sh
+```
+
+This will create single-file executables in the `publish/` directory for all supported platforms.
+
+### VS Code Tasks
+
+You can also use VS Code tasks to publish for individual platforms or all platforms:
+
+1. Press `Cmd+Shift+P` (macOS) or `Ctrl+Shift+P` (Windows/Linux)
+2. Type "Tasks: Run Task"
+3. Select one of:
+   - **Publish All Platforms** - Builds for all platforms
+   - **Publish Windows x64** - Windows 64-bit
+   - **Publish Windows ARM64** - Windows ARM 64-bit
+   - **Publish macOS x64** - macOS Intel
+   - **Publish macOS ARM64** - macOS Apple Silicon
+   - **Publish Linux x64** - Linux 64-bit
+   - **Publish Linux ARM64** - Linux ARM 64-bit
+
+### Manual Publishing
+
+To manually publish for a specific platform:
+
+```bash
+dotnet publish azdo-wi-creator/azdo-wi-creator.csproj \
+  --configuration Release \
+  --runtime <RUNTIME> \
+  --self-contained true \
+  --output publish/<PLATFORM> \
+  /p:PublishSingleFile=true \
+  /p:PublishTrimmed=false \
+  /p:IncludeNativeLibrariesForSelfExtract=true
+```
+
+Replace `<RUNTIME>` and `<PLATFORM>` with:
+
+| Platform | Runtime | Output Directory |
+|----------|---------|------------------|
+| Windows x64 | `win-x64` | `publish/windows-x64` |
+| Windows ARM64 | `win-arm64` | `publish/windows-arm64` |
+| macOS x64 | `osx-x64` | `publish/macos-x64` |
+| macOS ARM64 | `osx-arm64` | `publish/macos-arm64` |
+| Linux x64 | `linux-x64` | `publish/linux-x64` |
+| Linux ARM64 | `linux-arm64` | `publish/linux-arm64` |
+
+### Output Location
+
+After publishing, executables will be located at:
+
+- **Windows**: `publish/windows-{x64|arm64}/azdo-wi-creator.exe`
+- **macOS**: `publish/macos-{x64|arm64}/azdo-wi-creator`
+- **Linux**: `publish/linux-{x64|arm64}/azdo-wi-creator`
+
+### Creating a GitHub Release
+
+1. Run `./publish-all.sh` to build all platform binaries
+2. Create archives for each platform:
+   ```bash
+   cd publish
+   
+   # Windows x64
+   zip -r azdo-wi-creator-windows-x64.zip windows-x64/azdo-wi-creator.exe
+   
+   # Windows ARM64
+   zip -r azdo-wi-creator-windows-arm64.zip windows-arm64/azdo-wi-creator.exe
+   
+   # macOS x64
+   tar -czf azdo-wi-creator-macos-x64.tar.gz -C macos-x64 azdo-wi-creator
+   
+   # macOS ARM64
+   tar -czf azdo-wi-creator-macos-arm64.tar.gz -C macos-arm64 azdo-wi-creator
+   
+   # Linux x64
+   tar -czf azdo-wi-creator-linux-x64.tar.gz -C linux-x64 azdo-wi-creator
+   
+   # Linux ARM64
+   tar -czf azdo-wi-creator-linux-arm64.tar.gz -C linux-arm64 azdo-wi-creator
+   ```
+
+3. Go to your GitHub repository → Releases → Draft a new release
+4. Create a new tag (e.g., `v1.0.0`)
+5. Upload all the archive files
+6. Publish the release
+
+### Binary Characteristics
+
+All published binaries are:
+- **Self-contained**: Include the .NET runtime (no .NET installation required)
+- **Single-file**: All dependencies bundled into a single executable
+- **Platform-specific**: Optimized for each target platform
+- **Ready to run**: No additional setup or dependencies needed
+
 ## Troubleshooting
 
 ### Authentication Issues
