@@ -5,7 +5,7 @@ namespace AzDoWiCreator;
 public static class MarkdownHelper
 {
     /// <summary>
-    /// Detects if a string contains typical markdown syntax patterns
+    /// Detects if a string contains typical markdown syntax patterns or HTML tags
     /// </summary>
     public static bool ContainsMarkdownSyntax(string? value)
     {
@@ -13,6 +13,14 @@ public static class MarkdownHelper
             return false;
 
         var text = value!;
+
+        // First check for HTML tags
+        // Common HTML tags: div, span, p, br, hr, strong, em, b, i, u, a, ul, ol, li, h1-h6, pre, code, blockquote, etc.
+        var htmlPattern = @"<\s*([a-zA-Z][a-zA-Z0-9]*)\b[^>]*>|<\s*/\s*([a-zA-Z][a-zA-Z0-9]*)\s*>|<\s*([a-zA-Z][a-zA-Z0-9]*)\s*/\s*>";
+        if (Regex.IsMatch(text, htmlPattern, RegexOptions.IgnoreCase))
+        {
+            return true;
+        }
 
         // Check for common markdown patterns:
         // - Headers: # Header or ## Header
@@ -50,14 +58,26 @@ public static class MarkdownHelper
     }
 
     /// <summary>
-    /// Converts markdown text to HTML for Azure DevOps rich text fields
+    /// Converts markdown text to HTML for Azure DevOps rich text fields.
+    /// If the input already contains HTML tags, returns it as-is.
     /// </summary>
     public static string ConvertMarkdownToHtml(string markdown)
     {
         if (string.IsNullOrWhiteSpace(markdown))
             return string.Empty;
 
-        var html = markdown;
+        var text = markdown.Trim();
+
+        // If the text already contains HTML tags, assume it's already HTML and return as-is
+        var htmlPattern = @"<\s*([a-zA-Z][a-zA-Z0-9]*)\b[^>]*>|<\s*/\s*([a-zA-Z][a-zA-Z0-9]*)\s*>|<\s*([a-zA-Z][a-zA-Z0-9]*)\s*/\s*>";
+        if (Regex.IsMatch(text, htmlPattern, RegexOptions.IgnoreCase))
+        {
+            // Already contains HTML, return as-is
+            return text;
+        }
+
+        // Convert markdown to HTML
+        var html = text;
 
         // Convert headers (must be done first to avoid conflicts)
         html = Regex.Replace(html, @"^######\s+(.+)$", "<h6>$1</h6>", RegexOptions.Multiline);

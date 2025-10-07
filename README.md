@@ -217,14 +217,14 @@ You can use **short field names** for convenience! The tool automatically resolv
 
 ### Automatic Markdown Detection
 
-The tool **automatically detects markdown syntax** in string field values and creates corresponding HTML fields for rich text rendering in Azure DevOps!
+The tool **automatically detects markdown syntax and HTML tags** in string field values and creates corresponding HTML fields for rich text rendering in Azure DevOps!
 
-When you write field values using markdown syntax, the tool will:
-1. Detect common markdown patterns (headers, lists, bold, italic, links, code blocks, etc.)
-2. Automatically create a `.Html` version of the field with converted HTML
-3. Keep both the original markdown and the HTML version in Azure DevOps
+When you write field values using markdown syntax or HTML tags, the tool will:
+1. Detect common markdown patterns (headers, lists, bold, italic, links, code blocks, etc.) **or HTML tags**
+2. Automatically create a `.Html` version of the field with converted HTML (or the original HTML if already in HTML format)
+3. Keep both the original content and the HTML version in Azure DevOps
 
-**Example:**
+**Example with Markdown:**
 
 ```json
 {
@@ -246,6 +246,28 @@ When you write field values using markdown syntax, the tool will:
 - **Automatically** creates `System.Description.Html` with HTML: `<h1>Overview</h1><div>This feature...</div><ul><li><strong>OAuth 2.0</strong> support</li>...`
 - Azure DevOps renders the HTML beautifully in the work item
 
+**Example with HTML:**
+
+```json
+{
+  "workItems": [
+    {
+      "fields": {
+        "Title": "Bug Fix",
+        "Description": "<div>This is a critical bug that needs attention.</div><br/><p>Steps to reproduce:</p><ul><li>Step 1</li><li>Step 2</li></ul>"
+      },
+      "areaPaths": ["MyProject\\Team1"]
+    }
+  ]
+}
+```
+
+**What happens:**
+- The tool detects HTML tags in the `Description` field
+- Creates `System.Description` with the original HTML
+- **Automatically** creates `System.Description.Html` with the same HTML (since it's already in HTML format)
+- Azure DevOps renders the HTML properly in the work item
+
 **Supported Markdown:**
 - Headers: `# H1`, `## H2`, `### H3`, etc.
 - Bold: `**bold**` or `__bold__`
@@ -256,7 +278,10 @@ When you write field values using markdown syntax, the tool will:
 - Lists: `- item` or `* item` or `1. item`
 - Blockquotes: `> quote`
 
-**Plain text is left unchanged** - only fields with markdown syntax get HTML versions!
+**Supported HTML Tags:**
+- Any valid HTML tags: `<div>`, `<span>`, `<p>`, `<br/>`, `<strong>`, `<em>`, `<a>`, `<ul>`, `<ol>`, `<li>`, `<h1>`-`<h6>`, `<pre>`, `<code>`, `<blockquote>`, etc.
+
+**Plain text is left unchanged** - only fields with markdown syntax or HTML tags get HTML versions!
 
 ### Field Mapping
 

@@ -1,0 +1,18 @@
+{
+    "workItems": [
+        {
+            "project": "Test Project",
+            "fields": {
+                "Title": "Test HTML Detection",
+                "Description": "<div>This is HTML content with <strong>bold</strong> and <em>italic</em> text.</div><br/><p>Another paragraph with a <a href='https://example.com'>link</a>.</p>",
+                "AcceptanceCriteria": "Plain text without any HTML or markdown",
+                "Custom.MixedContent": "Some text with <br/> line break and <span>inline span</span>",
+                "Custom.MarkdownContent": "# Header\n\n- List item 1\n- List item 2"
+            },
+            "areaPaths": [
+                "Test Project"
+            ],
+            "tags": "html-test"
+        }
+    ]
+}
