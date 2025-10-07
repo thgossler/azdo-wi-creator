@@ -148,28 +148,57 @@ public class AzureDevOpsClient : IDisposable
         {
             var value = field.Value;
             
-            patchDocument.Add(new JsonPatchOperation
-            {
-                Operation = Operation.Add,
-                Path = $"/fields/{field.Key}",
-                Value = value
-            });
-
-            // If the value is a string and contains markdown, also add the HTML version
+            // If the value is a string and contains markdown/HTML, convert it
             if (value is string stringValue && MarkdownHelper.ContainsMarkdownSyntax(stringValue))
             {
-                var htmlFieldName = field.Key.EndsWith(".Html") ? field.Key : $"{field.Key}.Html";
                 var htmlValue = MarkdownHelper.ConvertMarkdownToHtml(stringValue);
                 
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine($"  └─ Detected markdown in '{field.Key}', adding HTML field '{htmlFieldName}'");
-                Console.ResetColor();
+                // Check if this field supports .Html suffix (system fields only)
+                if (MarkdownHelper.SupportsHtmlField(field.Key))
+                {
+                    // For system fields that support .Html, add both the plain text and HTML versions
+                    patchDocument.Add(new JsonPatchOperation
+                    {
+                        Operation = Operation.Add,
+                        Path = $"/fields/{field.Key}",
+                        Value = stringValue
+                    });
+                    
+                    var htmlFieldName = $"{field.Key}.Html";
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine($"  └─ Detected markdown in '{field.Key}', adding HTML field '{htmlFieldName}'");
+                    Console.ResetColor();
 
+                    patchDocument.Add(new JsonPatchOperation
+                    {
+                        Operation = Operation.Add,
+                        Path = $"/fields/{htmlFieldName}",
+                        Value = htmlValue
+                    });
+                }
+                else
+                {
+                    // For custom fields, just store the HTML directly in the field
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine($"  └─ Detected markdown in '{field.Key}', converting to HTML");
+                    Console.ResetColor();
+                    
+                    patchDocument.Add(new JsonPatchOperation
+                    {
+                        Operation = Operation.Add,
+                        Path = $"/fields/{field.Key}",
+                        Value = htmlValue
+                    });
+                }
+            }
+            else
+            {
+                // Plain text or non-string value, add as-is
                 patchDocument.Add(new JsonPatchOperation
                 {
                     Operation = Operation.Add,
-                    Path = $"/fields/{htmlFieldName}",
-                    Value = htmlValue
+                    Path = $"/fields/{field.Key}",
+                    Value = value
                 });
             }
         }
@@ -224,28 +253,57 @@ public class AzureDevOpsClient : IDisposable
         {
             var value = field.Value;
             
-            patchDocument.Add(new JsonPatchOperation
-            {
-                Operation = Operation.Replace,
-                Path = $"/fields/{field.Key}",
-                Value = value
-            });
-
-            // If the value is a string and contains markdown, also update the HTML version
+            // If the value is a string and contains markdown/HTML, convert it
             if (value is string stringValue && MarkdownHelper.ContainsMarkdownSyntax(stringValue))
             {
-                var htmlFieldName = field.Key.EndsWith(".Html") ? field.Key : $"{field.Key}.Html";
                 var htmlValue = MarkdownHelper.ConvertMarkdownToHtml(stringValue);
                 
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine($"  └─ Detected markdown in '{field.Key}', updating HTML field '{htmlFieldName}'");
-                Console.ResetColor();
+                // Check if this field supports .Html suffix (system fields only)
+                if (MarkdownHelper.SupportsHtmlField(field.Key))
+                {
+                    // For system fields that support .Html, update both the plain text and HTML versions
+                    patchDocument.Add(new JsonPatchOperation
+                    {
+                        Operation = Operation.Replace,
+                        Path = $"/fields/{field.Key}",
+                        Value = stringValue
+                    });
+                    
+                    var htmlFieldName = $"{field.Key}.Html";
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine($"  └─ Detected markdown in '{field.Key}', updating HTML field '{htmlFieldName}'");
+                    Console.ResetColor();
 
+                    patchDocument.Add(new JsonPatchOperation
+                    {
+                        Operation = Operation.Replace,
+                        Path = $"/fields/{htmlFieldName}",
+                        Value = htmlValue
+                    });
+                }
+                else
+                {
+                    // For custom fields, just store the HTML directly in the field
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine($"  └─ Detected markdown in '{field.Key}', converting to HTML");
+                    Console.ResetColor();
+                    
+                    patchDocument.Add(new JsonPatchOperation
+                    {
+                        Operation = Operation.Replace,
+                        Path = $"/fields/{field.Key}",
+                        Value = htmlValue
+                    });
+                }
+            }
+            else
+            {
+                // Plain text or non-string value, update as-is
                 patchDocument.Add(new JsonPatchOperation
                 {
                     Operation = Operation.Replace,
-                    Path = $"/fields/{htmlFieldName}",
-                    Value = htmlValue
+                    Path = $"/fields/{field.Key}",
+                    Value = value
                 });
             }
         }

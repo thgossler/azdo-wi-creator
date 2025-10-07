@@ -5,6 +5,28 @@ namespace AzDoWiCreator;
 public static class MarkdownHelper
 {
     /// <summary>
+    /// Azure DevOps system fields that support .Html versions for rich text
+    /// </summary>
+    private static readonly HashSet<string> FieldsSupportingHtml = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "System.Description",
+        "System.History",
+        "Microsoft.VSTS.Common.AcceptanceCriteria",
+        "Microsoft.VSTS.TCM.ReproSteps",
+        "Microsoft.VSTS.TCM.SystemInfo"
+    };
+
+    /// <summary>
+    /// Checks if a field supports the .Html suffix for rich text rendering
+    /// Custom fields typically don't support .Html - they use the field itself for HTML/markdown
+    /// </summary>
+    public static bool SupportsHtmlField(string fieldName)
+    {
+        // Only specific system fields support the .Html suffix
+        return FieldsSupportingHtml.Contains(fieldName);
+    }
+
+    /// <summary>
     /// Detects if a string contains typical markdown syntax patterns or HTML tags
     /// </summary>
     public static bool ContainsMarkdownSyntax(string? value)

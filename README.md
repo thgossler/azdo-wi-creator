@@ -219,10 +219,50 @@ You can use **short field names** for convenience! The tool automatically resolv
 
 The tool **automatically detects markdown syntax and HTML tags** in string field values and creates corresponding HTML fields for rich text rendering in Azure DevOps!
 
-When you write field values using markdown syntax or HTML tags, the tool will:
-1. Detect common markdown patterns (headers, lists, bold, italic, links, code blocks, etc.) **or HTML tags**
-2. Automatically create a `.Html` version of the field with converted HTML (or the original HTML if already in HTML format)
-3. Keep both the original content and the HTML version in Azure DevOps
+**How it works:**
+
+1. **System Fields** (e.g., `System.Description`, `Microsoft.VSTS.Common.AcceptanceCriteria`):
+   - Stores original markdown/HTML in the field (e.g., `System.Description`)
+   - Creates a separate `.Html` field with the HTML version (e.g., `System.Description.Html`)
+   
+2. **Custom Fields** (e.g., `Custom.ProblemStatement`, `Custom.FeatureHypothesis`):
+   - Converts markdown to HTML and stores it directly in the field
+   - No separate `.Html` field is created (custom fields don't support this in Azure DevOps)
+   - Azure DevOps displays the HTML if the field is configured to support markdown/HTML
+
+**Example with System Field:**
+
+```json
+{
+  "fields": {
+    "Description": "# Overview\n\n- Item 1\n- Item 2"
+  }
+}
+```
+
+Result:
+- `System.Description` = "# Overview\n\n- Item 1\n- Item 2" (original markdown)
+- `System.Description.Html` = "<h1>Overview</h1><ul><li>Item 1</li><li>Item 2</li></ul>" (auto-generated)
+
+**Example with Custom Field:**
+
+```json
+{
+  "fields": {
+    "Custom.ProblemStatement": "# Problem\n\n- Issue 1\n- Issue 2"
+  }
+}
+```
+
+Result:
+- `Custom.ProblemStatement` = "<h1>Problem</h1><ul><li>Issue 1</li><li>Issue 2</li></ul>" (converted to HTML)
+
+**System fields that support .Html:**
+- `System.Description`
+- `System.History`
+- `Microsoft.VSTS.Common.AcceptanceCriteria`
+- `Microsoft.VSTS.TCM.ReproSteps`
+- `Microsoft.VSTS.TCM.SystemInfo`
 
 **Example with Markdown:**
 
@@ -232,7 +272,8 @@ When you write field values using markdown syntax or HTML tags, the tool will:
     {
       "fields": {
         "Title": "Implement User Authentication",
-        "Description": "# Overview\n\nThis feature adds user authentication with the following:\n\n- **OAuth 2.0** support\n- *JWT tokens* for session management\n- Password reset functionality\n\n## Technical Details\n\n```javascript\nconst token = jwt.sign({ userId }, secret);\n```\n\nSee the [design doc](https://example.com) for more info."
+        "Description": "# Overview\n\nThis feature adds user authentication with the following:\n\n- **OAuth 2.0** support\n- *JWT tokens* for session management\n- Password reset functionality\n\n## Technical Details\n\n```javascript\nconst token = jwt.sign({ userId }, secret);\n```\n\nSee the [design doc](https://example.com) for more info.",
+        "Custom.TechSpec": "## Architecture\n\n- Microservices\n- Event-driven\n- REST APIs"
       },
       "areaPaths": ["MyProject\\Team1"]
     }
@@ -241,10 +282,9 @@ When you write field values using markdown syntax or HTML tags, the tool will:
 ```
 
 **What happens:**
-- The tool detects markdown in the `Description` field
-- Creates `System.Description` with the original markdown text
-- **Automatically** creates `System.Description.Html` with HTML: `<h1>Overview</h1><div>This feature...</div><ul><li><strong>OAuth 2.0</strong> support</li>...`
-- Azure DevOps renders the HTML beautifully in the work item
+- `System.Description`: Markdown detected → creates both `System.Description` (original) and `System.Description.Html` (converted)
+- `Custom.TechSpec`: Markdown detected → converts to HTML and stores in `Custom.TechSpec`
+- Azure DevOps renders both beautifully
 
 **Example with HTML:**
 
@@ -254,7 +294,8 @@ When you write field values using markdown syntax or HTML tags, the tool will:
     {
       "fields": {
         "Title": "Bug Fix",
-        "Description": "<div>This is a critical bug that needs attention.</div><br/><p>Steps to reproduce:</p><ul><li>Step 1</li><li>Step 2</li></ul>"
+        "Description": "<div>This is a critical bug that needs attention.</div><br/><p>Steps to reproduce:</p><ul><li>Step 1</li><li>Step 2</li></ul>",
+        "Custom.Notes": "Some text with <br/> and <strong>emphasis</strong>"
       },
       "areaPaths": ["MyProject\\Team1"]
     }
@@ -263,10 +304,9 @@ When you write field values using markdown syntax or HTML tags, the tool will:
 ```
 
 **What happens:**
-- The tool detects HTML tags in the `Description` field
-- Creates `System.Description` with the original HTML
-- **Automatically** creates `System.Description.Html` with the same HTML (since it's already in HTML format)
-- Azure DevOps renders the HTML properly in the work item
+- `System.Description`: HTML detected → creates both `System.Description` (original) and `System.Description.Html` (same HTML)
+- `Custom.Notes`: HTML detected → stores HTML directly in `Custom.Notes`
+- Azure DevOps renders the HTML properly
 
 **Supported Markdown:**
 - Headers: `# H1`, `## H2`, `### H3`, etc.

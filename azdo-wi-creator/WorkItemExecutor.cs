@@ -167,10 +167,19 @@ public class WorkItemExecutor
                     // Check if this field contains markdown
                     if (field.Value is string stringValue && MarkdownHelper.ContainsMarkdownSyntax(stringValue))
                     {
-                        var htmlFieldName = field.Key.EndsWith(".Html") ? field.Key : $"{field.Key}.Html";
-                        Console.ForegroundColor = ConsoleColor.Cyan;
-                        Console.WriteLine($"      └─ Markdown detected, will also create: {htmlFieldName}");
-                        Console.ResetColor();
+                        if (MarkdownHelper.SupportsHtmlField(field.Key))
+                        {
+                            var htmlFieldName = $"{field.Key}.Html";
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            Console.WriteLine($"      └─ Markdown detected, will also create: {htmlFieldName}");
+                            Console.ResetColor();
+                        }
+                        else
+                        {
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            Console.WriteLine($"      └─ Markdown detected, will convert to HTML");
+                            Console.ResetColor();
+                        }
                     }
                 }
 
