@@ -72,3 +72,10 @@ TestResults/
 # Publish profiles
 *.pubxml
 *.publishsettings
+
+# Local files
+*.local.*
+*.local
+local/
+temp/
+tmp/

@@ -2,8 +2,8 @@
   "workItems": [
     {
       "fields": {
-        "System.Title": "Test workitem",
-        "Problem Statement": "Updated problem statement..."
+        "Title": "Test workitem",
+        "Description": "Test description"
       }
     }
   ]
