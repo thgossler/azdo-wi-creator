@@ -163,6 +163,15 @@ public class WorkItemExecutor
                         value = value.Substring(0, 97) + "...";
                     }
                     Console.WriteLine($"    {field.Key}: {value}");
+                    
+                    // Check if this field contains markdown
+                    if (field.Value is string stringValue && MarkdownHelper.ContainsMarkdownSyntax(stringValue))
+                    {
+                        var htmlFieldName = field.Key.EndsWith(".Html") ? field.Key : $"{field.Key}.Html";
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.WriteLine($"      └─ Markdown detected, will also create: {htmlFieldName}");
+                        Console.ResetColor();
+                    }
                 }
 
                 if (!string.IsNullOrWhiteSpace(workItem.Tags))

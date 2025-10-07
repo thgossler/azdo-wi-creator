@@ -8,6 +8,7 @@ A command-line tool for creating and managing Azure DevOps work items in bulk fr
 - ✅ Support for comments in JSON spec files (single-line `//` and multi-line `/* */`)
 - ✅ Support for multiple projects in a single spec file
 - ✅ Support for multiple area paths (creates one work item per area path)
+- ✅ Automatic markdown-to-HTML conversion for rich text fields
 - ✅ Automatic tagging with `azdo-wi-creator` for tracking
 - ✅ Smart spec file resolution (local paths, URLs, or simple names)
 - ✅ Simulation mode (dry-run) to preview changes
@@ -213,6 +214,49 @@ You can use **short field names** for convenience! The tool automatically resolv
 - And many more...
 
 **Custom fields**: Always use fully qualified names (e.g., `Custom.MyCompanyField`)
+
+### Automatic Markdown Detection
+
+The tool **automatically detects markdown syntax** in string field values and creates corresponding HTML fields for rich text rendering in Azure DevOps!
+
+When you write field values using markdown syntax, the tool will:
+1. Detect common markdown patterns (headers, lists, bold, italic, links, code blocks, etc.)
+2. Automatically create a `.Html` version of the field with converted HTML
+3. Keep both the original markdown and the HTML version in Azure DevOps
+
+**Example:**
+
+```json
+{
+  "workItems": [
+    {
+      "fields": {
+        "Title": "Implement User Authentication",
+        "Description": "# Overview\n\nThis feature adds user authentication with the following:\n\n- **OAuth 2.0** support\n- *JWT tokens* for session management\n- Password reset functionality\n\n## Technical Details\n\n```javascript\nconst token = jwt.sign({ userId }, secret);\n```\n\nSee the [design doc](https://example.com) for more info."
+      },
+      "areaPaths": ["MyProject\\Team1"]
+    }
+  ]
+}
+```
+
+**What happens:**
+- The tool detects markdown in the `Description` field
+- Creates `System.Description` with the original markdown text
+- **Automatically** creates `System.Description.Html` with HTML: `<h1>Overview</h1><div>This feature...</div><ul><li><strong>OAuth 2.0</strong> support</li>...`
+- Azure DevOps renders the HTML beautifully in the work item
+
+**Supported Markdown:**
+- Headers: `# H1`, `## H2`, `### H3`, etc.
+- Bold: `**bold**` or `__bold__`
+- Italic: `*italic*` or `_italic_`
+- Links: `[text](url)`
+- Code blocks: `` ```code``` ``
+- Inline code: `` `code` ``
+- Lists: `- item` or `* item` or `1. item`
+- Blockquotes: `> quote`
+
+**Plain text is left unchanged** - only fields with markdown syntax get HTML versions!
 
 ### Field Mapping
 

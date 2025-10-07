@@ -143,15 +143,35 @@ public class AzureDevOpsClient : IDisposable
     {
         var patchDocument = new JsonPatchDocument();
 
-        // Add fields
+        // Add fields and detect markdown
         foreach (var field in fields)
         {
+            var value = field.Value;
+            
             patchDocument.Add(new JsonPatchOperation
             {
                 Operation = Operation.Add,
                 Path = $"/fields/{field.Key}",
-                Value = field.Value
+                Value = value
             });
+
+            // If the value is a string and contains markdown, also add the HTML version
+            if (value is string stringValue && MarkdownHelper.ContainsMarkdownSyntax(stringValue))
+            {
+                var htmlFieldName = field.Key.EndsWith(".Html") ? field.Key : $"{field.Key}.Html";
+                var htmlValue = MarkdownHelper.ConvertMarkdownToHtml(stringValue);
+                
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine($"  └─ Detected markdown in '{field.Key}', adding HTML field '{htmlFieldName}'");
+                Console.ResetColor();
+
+                patchDocument.Add(new JsonPatchOperation
+                {
+                    Operation = Operation.Add,
+                    Path = $"/fields/{htmlFieldName}",
+                    Value = htmlValue
+                });
+            }
         }
 
         // Set area path
@@ -199,15 +219,35 @@ public class AzureDevOpsClient : IDisposable
         // Get current work item to preserve state if needed
         var currentWorkItem = await _witClient.GetWorkItemAsync(_project, workItemId);
         
-        // Update fields
+        // Update fields and detect markdown
         foreach (var field in fields)
         {
+            var value = field.Value;
+            
             patchDocument.Add(new JsonPatchOperation
             {
                 Operation = Operation.Replace,
                 Path = $"/fields/{field.Key}",
-                Value = field.Value
+                Value = value
             });
+
+            // If the value is a string and contains markdown, also update the HTML version
+            if (value is string stringValue && MarkdownHelper.ContainsMarkdownSyntax(stringValue))
+            {
+                var htmlFieldName = field.Key.EndsWith(".Html") ? field.Key : $"{field.Key}.Html";
+                var htmlValue = MarkdownHelper.ConvertMarkdownToHtml(stringValue);
+                
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine($"  └─ Detected markdown in '{field.Key}', updating HTML field '{htmlFieldName}'");
+                Console.ResetColor();
+
+                patchDocument.Add(new JsonPatchOperation
+                {
+                    Operation = Operation.Replace,
+                    Path = $"/fields/{htmlFieldName}",
+                    Value = htmlValue
+                });
+            }
         }
 
         // Update tags (merge with existing)
