@@ -5,18 +5,18 @@ A command-line tool for creating and managing Azure DevOps work items in bulk fr
 ## Features
 
 - ✅ Create or update multiple work items from JSON specifications
-- ✅ Support for comments in JSON spec files (single-line `//` and multi-line `/* */`)
-- ✅ Support for multiple projects in a single spec file
 - ✅ Support for multiple area paths (creates one work item per area path)
+- ✅ Support for multiple projects in a single spec file
+- ✅ Short field name support (use "Title" instead of "System.Title")
 - ✅ Automatic markdown-to-HTML conversion for rich text fields
 - ✅ Automatic tagging with `azdo-wi-creator` for tracking
 - ✅ Smart spec file resolution (local paths, URLs, or simple names)
+- ✅ Support for comments in JSON spec files (single-line `//` and multi-line `/* */`)
 - ✅ Simulation mode (dry-run) to preview changes
 - ✅ Work item protection (prevents accidental updates of non-tool-created items)
 - ✅ List all work items created by the tool
 - ✅ Cross-platform support (Windows, Linux, macOS - x64 and ARM64)
 - ✅ Self-contained single-file executable
-- ✅ Short field name support (use "Title" instead of "System.Title")
 
 ## Installation
 
@@ -242,7 +242,7 @@ The tool **automatically detects markdown syntax and HTML tags** in string field
 
 Result:
 - `System.Description` = "# Overview\n\n- Item 1\n- Item 2" (original markdown)
-- `System.Description.Html` = "<h1>Overview</h1><ul><li>Item 1</li><li>Item 2</li></ul>" (auto-generated)
+- `System.Description.Html` = "\<h1>Overview\</h1>\<ul>\<li>Item 1\</li>\<li>Item 2\</li>\</ul>" (auto-generated)
 
 **Example with Custom Field:**
 
@@ -255,7 +255,7 @@ Result:
 ```
 
 Result:
-- `Custom.ProblemStatement` = "<h1>Problem</h1><ul><li>Issue 1</li><li>Issue 2</li></ul>" (converted to HTML)
+- `Custom.ProblemStatement` = "\<h1>Problem\</h1>\<ul>\<li>Issue 1\</li>\<li>Issue 2\</li>\</ul>" (converted to HTML)
 
 **System fields that support .Html:**
 - `System.Description`
