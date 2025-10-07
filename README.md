@@ -658,10 +658,39 @@ After publishing, executables will be located at:
 
 ### Creating a GitHub Release
 
+#### Automated Release (Recommended)
+
+The repository includes a GitHub Actions workflow that automatically builds and publishes releases when you push a version tag:
+
+```bash
+# 1. Update version in azdo-wi-creator/azdo-wi-creator.csproj
+# <Version>0.3.0</Version>
+
+# 2. Commit your changes
+git add .
+git commit -m "Prepare release v0.3.0"
+
+# 3. Create and push a version tag
+git tag v0.3.0
+git push origin v0.3.0
+```
+
+This automatically:
+- Builds executables for all 6 platforms (Windows, Linux, macOS - x64 & ARM64)
+- Creates compressed archives (`.zip` for Windows, `.tar.gz` for macOS/Linux)
+- Creates a GitHub Release with version-tagged files (e.g., `azdo-wi-creator-win-x64-v0.3.0.zip`)
+- Generates release notes from your commits
+
+**Note**: The tag must start with `v` (e.g., `v0.3.0`) to trigger the workflow.
+
+#### Manual Release
+
+Alternatively, you can create releases manually:
+
 1. Run `./publish-n-zip-all.sh` to build and zip/tar all platform binaries
 2. Go to your GitHub repository → Releases → Draft a new release
 3. Create a new tag (e.g., `v0.3.0`)
-4. Upload all the archive files
+4. Upload all the archive files from the `publish/` directory
 5. Publish the release
 
 ### Binary Characteristics

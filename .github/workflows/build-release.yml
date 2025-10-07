@@ -17,32 +17,38 @@ jobs:
             arch: x64
             runner: windows-latest
             rid: win-x64
-            artifact: azdo-wi-creator-win-x64.exe
+            artifact: azdo-wi-creator-win-x64.zip
+            archive_ext: zip
           - os: windows
             arch: arm64
             runner: windows-latest
             rid: win-arm64
-            artifact: azdo-wi-creator-win-arm64.exe
+            artifact: azdo-wi-creator-win-arm64.zip
+            archive_ext: zip
           - os: linux
             arch: x64
             runner: ubuntu-latest
             rid: linux-x64
-            artifact: azdo-wi-creator-linux-x64
+            artifact: azdo-wi-creator-linux-x64.tar.gz
+            archive_ext: tar.gz
           - os: linux
             arch: arm64
             runner: ubuntu-latest
             rid: linux-arm64
-            artifact: azdo-wi-creator-linux-arm64
+            artifact: azdo-wi-creator-linux-arm64.tar.gz
+            archive_ext: tar.gz
           - os: macos
             arch: x64
             runner: macos-latest
             rid: osx-x64
-            artifact: azdo-wi-creator-osx-x64
+            artifact: azdo-wi-creator-osx-x64.tar.gz
+            archive_ext: tar.gz
           - os: macos
             arch: arm64
             runner: macos-latest
             rid: osx-arm64
-            artifact: azdo-wi-creator-osx-arm64
+            artifact: azdo-wi-creator-osx-arm64.tar.gz
+            archive_ext: tar.gz
 
     steps:
       - name: Checkout code
@@ -70,22 +76,31 @@ jobs:
             -p:IncludeNativeLibrariesForSelfExtract=true \
             -o ./publish/${{ matrix.rid }}
 
-      - name: Rename artifact (Unix)
-        if: matrix.os != 'windows'
+      - name: Extract version
+        id: version
         run: |
-          mv ./publish/${{ matrix.rid }}/azdo-wi-creator ./publish/${{ matrix.rid }}/${{ matrix.artifact }}
-          chmod +x ./publish/${{ matrix.rid }}/${{ matrix.artifact }}
+          VERSION=$(grep -oP '<Version>\K[^<]+' azdo-wi-creator/azdo-wi-creator.csproj 2>/dev/null || grep -o '<Version>[^<]*</Version>' azdo-wi-creator/azdo-wi-creator.csproj | sed 's/<Version>//;s/<\/Version>//')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION"
+        shell: bash
 
-      - name: Rename artifact (Windows)
+      - name: Create archive (Windows)
         if: matrix.os == 'windows'
         run: |
-          Move-Item -Path ./publish/${{ matrix.rid }}/azdo-wi-creator.exe -Destination ./publish/${{ matrix.rid }}/${{ matrix.artifact }}
+          cd ./publish/${{ matrix.rid }}
+          7z a -tzip ../../azdo-wi-creator-${{ matrix.rid }}-v${{ steps.version.outputs.version }}.zip azdo-wi-creator.exe
+
+      - name: Create archive (Unix)
+        if: matrix.os != 'windows'
+        run: |
+          cd ./publish
+          tar -czf azdo-wi-creator-${{ matrix.rid }}-v${{ steps.version.outputs.version }}.tar.gz -C ${{ matrix.rid }} azdo-wi-creator
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact }}
-          path: ./publish/${{ matrix.rid }}/${{ matrix.artifact }}
+          name: azdo-wi-creator-${{ matrix.rid }}-v${{ steps.version.outputs.version }}
+          path: ./publish/azdo-wi-creator-${{ matrix.rid }}-v${{ steps.version.outputs.version }}.${{ matrix.archive_ext }}
 
   release:
     name: Create Release
