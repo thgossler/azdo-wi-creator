@@ -631,20 +631,20 @@ dotnet publish azdo-wi-creator/azdo-wi-creator.csproj \
   --configuration Release \
   --runtime <RUNTIME> \
   --self-contained true \
-  --output publish/<PLATFORM> \
+  --output publish/<RUNTIME> \
   /p:PublishSingleFile=true \
   /p:PublishTrimmed=false \
   /p:IncludeNativeLibrariesForSelfExtract=true
 ```
 
-Replace `<RUNTIME>` and `<PLATFORM>` with:
+Replace `<RUNTIME>` with:
 
 | Platform | Runtime | Output Directory |
 |----------|---------|------------------|
-| Windows x64 | `win-x64` | `publish/windows-x64` |
-| Windows ARM64 | `win-arm64` | `publish/windows-arm64` |
-| macOS x64 | `osx-x64` | `publish/macos-x64` |
-| macOS ARM64 | `osx-arm64` | `publish/macos-arm64` |
+| Windows x64 | `win-x64` | `publish/win-x64` |
+| Windows ARM64 | `win-arm64` | `publish/win-arm64` |
+| macOS x64 | `osx-x64` | `publish/osx-x64` |
+| macOS ARM64 | `osx-arm64` | `publish/osx-arm64` |
 | Linux x64 | `linux-x64` | `publish/linux-x64` |
 | Linux ARM64 | `linux-arm64` | `publish/linux-arm64` |
 
@@ -652,8 +652,8 @@ Replace `<RUNTIME>` and `<PLATFORM>` with:
 
 After publishing, executables will be located at:
 
-- **Windows**: `publish/windows-{x64|arm64}/azdo-wi-creator.exe`
-- **macOS**: `publish/macos-{x64|arm64}/azdo-wi-creator`
+- **Windows**: `publish/win-{x64|arm64}/azdo-wi-creator.exe`
+- **macOS**: `publish/osx-{x64|arm64}/azdo-wi-creator`
 - **Linux**: `publish/linux-{x64|arm64}/azdo-wi-creator`
 
 ### Creating a GitHub Release
