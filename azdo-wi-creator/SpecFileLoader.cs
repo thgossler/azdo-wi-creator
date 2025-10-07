@@ -32,10 +32,24 @@ public static class SpecFileLoader
             return await File.ReadAllTextAsync(exactPath);
         }
 
-        // Try with -spec.json suffix (case-insensitive)
+        // Try with -spec.local.json and -spec.json suffixes (case-insensitive)
+        // Priority: .local.json > .json (local overrides take precedence)
+        var specLocalJsonName = $"{specPath}-spec.local.json";
         var specJsonName = $"{specPath}-spec.json";
         var files = Directory.GetFiles(currentDir, "*.json", SearchOption.TopDirectoryOnly);
         
+        // First try to find .local.json variant
+        foreach (var file in files)
+        {
+            var fileName = Path.GetFileName(file);
+            if (string.Equals(fileName, specLocalJsonName, StringComparison.OrdinalIgnoreCase))
+            {
+                Console.WriteLine($"Reading spec file: {file}");
+                return await File.ReadAllTextAsync(file);
+            }
+        }
+        
+        // Then try to find .json variant
         foreach (var file in files)
         {
             var fileName = Path.GetFileName(file);
@@ -50,6 +64,7 @@ public static class SpecFileLoader
             $"  - HTTP(S) URL\n" +
             $"  - Exact path: {specPath}\n" +
             $"  - Current directory: {exactPath}\n" +
+            $"  - Case-insensitive search for: {specLocalJsonName}\n" +
             $"  - Case-insensitive search for: {specJsonName}");
     }
 }
