@@ -37,6 +37,9 @@ Download the pre-built executable for your platform from the [Releases](../../re
 
 Or build from source:
 
+> Prerequisites:
+> - Installed .NET 9 SDK ([Download .NET 9 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0))
+
 ```bash
 git clone https://github.com/thgossler/azdo-wi-creator.git
 cd azdo-wi-creator
