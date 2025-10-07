@@ -33,14 +33,7 @@
 
 ## Installation
 
-Download the pre-built executable for your platform from the [Releases](../../releases) page:
-
-- **Windows x64**: `azdo-wi-creator-win-x64.exe`
-- **Windows ARM**: `azdo-wi-creator-win-arm64.exe`
-- **Linux x64**: `azdo-wi-creator-linux-x64`
-- **Linux ARM**: `azdo-wi-creator-linux-arm64`
-- **macOS x64**: `azdo-wi-creator-osx-x64`
-- **macOS ARM (Apple Silicon)**: `azdo-wi-creator-osx-arm64`
+Download the pre-built executable for your platform from the [Releases](../../releases) page.
 
 Or build from source:
 
