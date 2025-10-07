@@ -396,4 +396,117 @@ public class WorkItemExecutor
             Environment.Exit(1);
         }
     }
+
+    public async Task ExecuteListAreaPathsAsync(bool fullStrings = false)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(_project))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error: --project is required for the list command.");
+                Console.ResetColor();
+                Environment.Exit(1);
+                return;
+            }
+
+            Console.WriteLine($"\nListing area paths in project...");
+            Console.WriteLine($"Organization: {_organization}");
+            Console.WriteLine($"Project: {_project}");
+            Console.WriteLine();
+
+            using var client = new AzureDevOpsClient(_organization, _project, _pat, _interactiveSignIn);
+            var areaPaths = await client.GetAreaPathsAsync();
+
+            if (areaPaths.Count == 0)
+            {
+                Console.WriteLine("No area paths found in the project.");
+                return;
+            }
+
+            Console.WriteLine($"Found {areaPaths.Count} area path(s):\n");
+
+            if (fullStrings)
+            {
+                // Display as full strings with quotes and commas
+                DisplayAreaPathsAsStrings(areaPaths);
+            }
+            else
+            {
+                // Display area paths hierarchically
+                DisplayAreaPathsHierarchically(areaPaths);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"Error: {ex.Message}");
+            Console.ResetColor();
+            Environment.Exit(1);
+        }
+    }
+
+    private void DisplayAreaPathsAsStrings(List<string> areaPaths)
+    {
+        for (int i = 0; i < areaPaths.Count; i++)
+        {
+            var path = areaPaths[i];
+            // Escape backslashes by doubling them
+            var escapedPath = path.Replace("\\", "\\\\");
+            
+            // Add comma for all but the last item
+            if (i < areaPaths.Count - 1)
+            {
+                Console.WriteLine($"\"{escapedPath}\",");
+            }
+            else
+            {
+                Console.WriteLine($"\"{escapedPath}\"");
+            }
+        }
+    }
+
+    private void DisplayAreaPathsHierarchically(List<string> areaPaths)
+    {
+        // Build a tree structure from the flat list of paths
+        var root = new AreaPathNode();
+        
+        foreach (var path in areaPaths)
+        {
+            var parts = path.Split('\\');
+            var currentNode = root;
+            
+            foreach (var part in parts)
+            {
+                if (!currentNode.Children.ContainsKey(part))
+                {
+                    currentNode.Children[part] = new AreaPathNode { Name = part };
+                }
+                currentNode = currentNode.Children[part];
+            }
+        }
+        
+        // Display the tree with indentation
+        foreach (var child in root.Children.Values.OrderBy(n => n.Name))
+        {
+            DisplayNode(child, 0);
+        }
+    }
+    
+    private void DisplayNode(AreaPathNode node, int depth)
+    {
+        var indent = new string(' ', depth * 2);
+        Console.WriteLine($"{indent}{node.Name}");
+        
+        foreach (var child in node.Children.Values.OrderBy(n => n.Name))
+        {
+            DisplayNode(child, depth + 1);
+        }
+    }
+    
+    private class AreaPathNode
+    {
+        public string Name { get; set; } = string.Empty;
+        public Dictionary<string, AreaPathNode> Children { get; set; } = new();
+    }
 }

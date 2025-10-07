@@ -54,13 +54,17 @@ public static class CommandHandler
         var projectOption = new Option<string>("--project", "-p") { Required = true, Description = "Azure DevOps project name" };
         var patOption = new Option<string>("--pat") { Description = "Personal Access Token for authentication. If not provided, uses AZURE_DEVOPS_PAT or interactive browser-based sign-in." };
         var interactiveSignInOption = new Option<bool>("--interactive-signin") { Description = "Force interactive browser-based sign-in, ignoring PAT token and AZURE_DEVOPS_PAT environment variable" };
+        var areaPathsOption = new Option<bool>("--area-paths") { Description = "List all area paths defined in the Azure DevOps project hierarchically" };
+        var fullStringsOption = new Option<bool>("--full-strings") { Description = "When used with --area-paths, output full path strings with quotes and commas (useful for copying to spec files)" };
 
-        var command = new Command("list", "List all work items created by this tool")
+        var command = new Command("list", "List all work items created by this tool or area paths in the project")
         {
             organizationOption,
             projectOption,
             patOption,
-            interactiveSignInOption
+            interactiveSignInOption,
+            areaPathsOption,
+            fullStringsOption
         };
 
         command.SetAction((parseResult) =>
@@ -69,9 +73,19 @@ public static class CommandHandler
             var project = parseResult.GetValue(projectOption)!;
             var pat = parseResult.GetValue(patOption);
             var interactiveSignIn = parseResult.GetValue(interactiveSignInOption);
+            var listAreaPaths = parseResult.GetValue(areaPathsOption);
+            var fullStrings = parseResult.GetValue(fullStringsOption);
 
             var executor = new WorkItemExecutor(organization, project, string.Empty, pat, interactiveSignIn);
-            return executor.ExecuteListAsync();
+            
+            if (listAreaPaths)
+            {
+                return executor.ExecuteListAreaPathsAsync(fullStrings);
+            }
+            else
+            {
+                return executor.ExecuteListAsync();
+            }
         });
 
         return command;

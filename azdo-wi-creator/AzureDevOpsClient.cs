@@ -1,5 +1,6 @@
 using Microsoft.TeamFoundation.WorkItemTracking.WebApi;
 using Microsoft.TeamFoundation.WorkItemTracking.WebApi.Models;
+using Microsoft.TeamFoundation.Core.WebApi;
 using Microsoft.VisualStudio.Services.Common;
 using Microsoft.VisualStudio.Services.Client;
 using Microsoft.VisualStudio.Services.WebApi;
@@ -256,6 +257,45 @@ public class AzureDevOpsClient : IDisposable
             .Where(t => !string.IsNullOrWhiteSpace(t));
 
         return tagsList.Any(t => t.Equals(ToolTag, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public async Task<List<string>> GetAreaPathsAsync()
+    {
+        var projectClient = _connection.GetClient<ProjectHttpClient>();
+        var project = await projectClient.GetProject(_project);
+        
+        // Get the classification nodes (area paths)
+        var classificationClient = _connection.GetClient<WorkItemTrackingHttpClient>();
+        var areaTree = await classificationClient.GetClassificationNodeAsync(
+            _project, 
+            TreeStructureGroup.Areas, 
+            depth: 100); // Get all levels
+        
+        var areaPaths = new List<string>();
+        CollectAreaPaths(areaTree, areaPaths);
+        
+        return areaPaths.OrderBy(p => p).ToList();
+    }
+    
+    private void CollectAreaPaths(WorkItemClassificationNode node, List<string> areaPaths, string parentPath = "")
+    {
+        var currentPath = string.IsNullOrEmpty(parentPath) 
+            ? node.Name 
+            : $"{parentPath}\\{node.Name}";
+        
+        // Only add paths beyond the root project node
+        if (!string.IsNullOrEmpty(parentPath))
+        {
+            areaPaths.Add(currentPath);
+        }
+        
+        if (node.HasChildren == true && node.Children != null)
+        {
+            foreach (var child in node.Children)
+            {
+                CollectAreaPaths(child, areaPaths, currentPath);
+            }
+        }
     }
 
     public void Dispose()
