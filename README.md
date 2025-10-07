@@ -665,34 +665,11 @@ After publishing, executables will be located at:
 
 ### Creating a GitHub Release
 
-1. Run `./publish-all.sh` to build all platform binaries
-2. Create archives for each platform:
-   ```bash
-   cd publish
-   
-   # Windows x64
-   zip -r azdo-wi-creator-windows-x64.zip windows-x64/azdo-wi-creator.exe
-   
-   # Windows ARM64
-   zip -r azdo-wi-creator-windows-arm64.zip windows-arm64/azdo-wi-creator.exe
-   
-   # macOS x64
-   tar -czf azdo-wi-creator-macos-x64.tar.gz -C macos-x64 azdo-wi-creator
-   
-   # macOS ARM64
-   tar -czf azdo-wi-creator-macos-arm64.tar.gz -C macos-arm64 azdo-wi-creator
-   
-   # Linux x64
-   tar -czf azdo-wi-creator-linux-x64.tar.gz -C linux-x64 azdo-wi-creator
-   
-   # Linux ARM64
-   tar -czf azdo-wi-creator-linux-arm64.tar.gz -C linux-arm64 azdo-wi-creator
-   ```
-
-3. Go to your GitHub repository → Releases → Draft a new release
-4. Create a new tag (e.g., `v1.0.0`)
-5. Upload all the archive files
-6. Publish the release
+1. Run `./publish-n-zip-all.sh` to build and zip/tar all platform binaries
+2. Go to your GitHub repository → Releases → Draft a new release
+3. Create a new tag (e.g., `v0.3.0`)
+4. Upload all the archive files
+5. Publish the release
 
 ### Binary Characteristics
 

@@ -9,6 +9,7 @@
     <SelfContained>true</SelfContained>
     <PublishTrimmed>false</PublishTrimmed>
     <AssemblyName>azdo-wi-creator</AssemblyName>
+    <Version>0.2.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
