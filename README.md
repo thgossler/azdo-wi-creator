@@ -1,6 +1,19 @@
-# Azure DevOps Work Item Creator
+<!-- PROJECT LOGO -->
+<div align="center">
+  <h1 align="center">Azure DevOps Work Item Creator</h1>
+  <p align="center">A command-line tool for creating and managing Azure DevOps work items in bulk from JSON specification files.</p>
+</div>
 
-A command-line tool for creating and managing Azure DevOps work items in bulk from JSON specification files.
+<!-- SHIELDS -->
+<div align="center">
+
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
+
+</div>
 
 ## Features
 
@@ -32,7 +45,7 @@ Download the pre-built executable for your platform from the [Releases](../../re
 Or build from source:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/thgossler/azdo-wi-creator.git
 cd azdo-wi-creator
 dotnet publish -c Release
 ```
@@ -723,10 +736,35 @@ If work items fail to create:
 - Use backslashes: `MyProject\\Team1\\SubTeam`
 - If not specified, defaults to project root
 
+## Donate
+
+If you are using the tool but are unable to contribute technically, please consider promoting it and donating an amount that reflects its value to you. You can do so either via PayPal
+
+[![Donate via PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/donate/?hosted_button_id=JVG7PFJ8DMW7J)
+
+or via [GitHub Sponsors](https://github.com/sponsors/thgossler).
+
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+1. Fork the repository
+2. Create a feature branch: `git checkout -b my-feature`
+3. Make your changes
+4. Test thoroughly on macOS
+5. Submit a pull request
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+
+<!-- MARKDOWN LINKS & IMAGES (https://www.markdownguide.org/basic-syntax/#reference-style-links) -->
+[contributors-shield]: https://img.shields.io/github/contributors/thgossler/azdo-wi-creator.svg
+[contributors-url]: https://github.com/thgossler/azdo-wi-creator/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/thgossler/azdo-wi-creator.svg
+[forks-url]: https://github.com/thgossler/azdo-wi-creator/network/members
+[stars-shield]: https://img.shields.io/github/stars/thgossler/azdo-wi-creator.svg
+[stars-url]: https://github.com/thgossler/azdo-wi-creator/stargazers
+[issues-shield]: https://img.shields.io/github/issues/thgossler/azdo-wi-creator.svg
+[issues-url]: https://github.com/thgossler/azdo-wi-creator/issues
+[license-shield]: https://img.shields.io/github/license/thgossler/azdo-wi-creator.svg
+[license-url]: https://github.com/thgossler/azdo-wi-creator/blob/main/LICENSE
