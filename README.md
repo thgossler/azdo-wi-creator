@@ -673,7 +673,10 @@ The repository includes a GitHub Actions workflow that automatically builds and 
 git add .
 git commit -m "Prepare release v0.3.0"
 
-# 3. Create and push a version tag
+# 3. Push commits to main branch
+git push origin main
+
+# 4. Create and push a version tag
 git tag v0.3.0
 git push origin v0.3.0
 ```

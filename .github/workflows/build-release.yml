@@ -75,6 +75,7 @@ jobs:
             -p:PublishTrimmed=false \
             -p:IncludeNativeLibrariesForSelfExtract=true \
             -o ./publish/${{ matrix.rid }}
+        shell: bash
 
       - name: Extract version
         id: version
