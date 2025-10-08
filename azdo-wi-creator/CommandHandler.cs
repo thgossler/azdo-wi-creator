@@ -56,6 +56,7 @@ public static class CommandHandler
         var interactiveSignInOption = new Option<bool>("--interactive-signin") { Description = "Force interactive browser-based sign-in, ignoring PAT token and AZURE_DEVOPS_PAT environment variable" };
         var areaPathsOption = new Option<bool>("--area-paths") { Description = "List all area paths defined in the Azure DevOps project hierarchically" };
         var fullStringsOption = new Option<bool>("--full-strings") { Description = "When used with --area-paths, output full path strings with quotes and commas (useful for copying to spec files)" };
+        var tableOption = new Option<bool>("--table") { Description = "Display work items in a table format with auto-sized columns (ID, Title, State, Area Path, Tags)" };
 
         var command = new Command("list", "List all work items created by this tool or area paths in the project")
         {
@@ -64,7 +65,8 @@ public static class CommandHandler
             patOption,
             interactiveSignInOption,
             areaPathsOption,
-            fullStringsOption
+            fullStringsOption,
+            tableOption
         };
 
         command.SetAction((parseResult) =>
@@ -75,6 +77,7 @@ public static class CommandHandler
             var interactiveSignIn = parseResult.GetValue(interactiveSignInOption);
             var listAreaPaths = parseResult.GetValue(areaPathsOption);
             var fullStrings = parseResult.GetValue(fullStringsOption);
+            var tableFormat = parseResult.GetValue(tableOption);
 
             var executor = new WorkItemExecutor(organization, project, string.Empty, pat, interactiveSignIn);
             
@@ -84,7 +87,7 @@ public static class CommandHandler
             }
             else
             {
-                return executor.ExecuteListAsync();
+                return executor.ExecuteListAsync(tableFormat);
             }
         });
 

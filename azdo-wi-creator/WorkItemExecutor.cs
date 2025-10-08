@@ -294,7 +294,7 @@ public class WorkItemExecutor
                         Console.ForegroundColor = ConsoleColor.Blue;
                         Console.WriteLine($"✓ Updated work item #{updatedWorkItem.Id}: {title}");
                         Console.WriteLine($"  Area Path: {areaPath}");
-                        Console.WriteLine($"  URL: {_organization}/{project}/_workitems/edit/{updatedWorkItem.Id}");
+                        Console.WriteLine($"  URL: {_organization}/{Uri.EscapeDataString(project)}/_workitems/edit/{updatedWorkItem.Id}");
                         Console.ResetColor();
                         updated++;
                     }
@@ -310,7 +310,7 @@ public class WorkItemExecutor
                         Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine($"✓ Created work item #{createdWorkItem.Id}: {title}");
                         Console.WriteLine($"  Area Path: {areaPath}");
-                        Console.WriteLine($"  URL: {_organization}/{project}/_workitems/edit/{createdWorkItem.Id}");
+                        Console.WriteLine($"  URL: {_organization}/{Uri.EscapeDataString(project)}/_workitems/edit/{createdWorkItem.Id}");
                         Console.ResetColor();
                         created++;
                     }
@@ -356,7 +356,7 @@ public class WorkItemExecutor
         }
     }
 
-    public async Task ExecuteListAsync()
+    public async Task ExecuteListAsync(bool tableFormat = false)
     {
         try
         {
@@ -385,25 +385,86 @@ public class WorkItemExecutor
 
             Console.WriteLine($"Found {workItems.Count} work item(s):\n");
 
-            foreach (var wi in workItems)
+            if (tableFormat)
             {
-                var id = wi.Id;
-                var title = wi.Fields.ContainsKey("System.Title") ? wi.Fields["System.Title"] : "(no title)";
-                var state = wi.Fields.ContainsKey("System.State") ? wi.Fields["System.State"] : "(unknown)";
-                var type = wi.Fields.ContainsKey("System.WorkItemType") ? wi.Fields["System.WorkItemType"] : "(unknown)";
-                var areaPath = wi.Fields.ContainsKey("System.AreaPath") ? wi.Fields["System.AreaPath"] : "(unknown)";
-                var tags = wi.Fields.ContainsKey("System.Tags") ? wi.Fields["System.Tags"] : "";
-
-                Console.WriteLine($"#{id} - {title}");
-                Console.WriteLine($"  Type: {type}");
-                Console.WriteLine($"  State: {state}");
-                Console.WriteLine($"  Area Path: {areaPath}");
-                if (!string.IsNullOrWhiteSpace(tags?.ToString()))
+                // Collect data for table
+                var rows = new List<(int id, string title, string state, string areaPath, string tags)>();
+                foreach (var wi in workItems)
                 {
-                    Console.WriteLine($"  Tags: {tags}");
+                    var id = wi.Id ?? 0;
+                    var title = wi.Fields.ContainsKey("System.Title") ? wi.Fields["System.Title"]?.ToString() ?? "(no title)" : "(no title)";
+                    var state = wi.Fields.ContainsKey("System.State") ? wi.Fields["System.State"]?.ToString() ?? "(unknown)" : "(unknown)";
+                    var areaPath = wi.Fields.ContainsKey("System.AreaPath") ? wi.Fields["System.AreaPath"]?.ToString() ?? "(unknown)" : "(unknown)";
+                    var tags = wi.Fields.ContainsKey("System.Tags") ? wi.Fields["System.Tags"]?.ToString() ?? "" : "";
+                    
+                    rows.Add((id, title, state, areaPath, tags));
                 }
-                Console.WriteLine($"  URL: {_organization}/{_project}/_workitems/edit/{id}");
-                Console.WriteLine();
+
+                // Calculate column widths
+                int idWidth = Math.Max(2, rows.Any() ? rows.Max(r => r.id.ToString().Length) : 2);
+                int titleWidth = Math.Max(5, rows.Any() ? rows.Max(r => r.title.Length) : 5);
+                int stateWidth = Math.Max(5, rows.Any() ? rows.Max(r => r.state.Length) : 5);
+                int areaPathWidth = Math.Max(9, rows.Any() ? rows.Max(r => r.areaPath.Length) : 9);
+                int tagsWidth = Math.Max(4, rows.Any() ? rows.Max(r => r.tags.Length) : 4);
+
+                // Print header with proper padding
+                var headerParts = new[]
+                {
+                    "ID".PadRight(idWidth),
+                    "Title".PadRight(titleWidth),
+                    "State".PadRight(stateWidth),
+                    "Area Path".PadRight(areaPathWidth),
+                    "Tags".PadRight(tagsWidth)
+                };
+                Console.WriteLine(string.Join("  ", headerParts));
+                
+                // Print separator line
+                var separatorParts = new[]
+                {
+                    new string('-', idWidth),
+                    new string('-', titleWidth),
+                    new string('-', stateWidth),
+                    new string('-', areaPathWidth),
+                    new string('-', tagsWidth)
+                };
+                Console.WriteLine(string.Join("  ", separatorParts));
+
+                // Print rows with proper padding
+                foreach (var row in rows)
+                {
+                    var rowParts = new[]
+                    {
+                        row.id.ToString().PadRight(idWidth),
+                        row.title.PadRight(titleWidth),
+                        row.state.PadRight(stateWidth),
+                        row.areaPath.PadRight(areaPathWidth),
+                        row.tags.PadRight(tagsWidth)
+                    };
+                    Console.WriteLine(string.Join("  ", rowParts));
+                }
+            }
+            else
+            {
+                foreach (var wi in workItems)
+                {
+                    var id = wi.Id;
+                    var title = wi.Fields.ContainsKey("System.Title") ? wi.Fields["System.Title"] : "(no title)";
+                    var state = wi.Fields.ContainsKey("System.State") ? wi.Fields["System.State"] : "(unknown)";
+                    var type = wi.Fields.ContainsKey("System.WorkItemType") ? wi.Fields["System.WorkItemType"] : "(unknown)";
+                    var areaPath = wi.Fields.ContainsKey("System.AreaPath") ? wi.Fields["System.AreaPath"] : "(unknown)";
+                    var tags = wi.Fields.ContainsKey("System.Tags") ? wi.Fields["System.Tags"] : "";
+
+                    Console.WriteLine($"#{id} - {title}");
+                    Console.WriteLine($"  Type: {type}");
+                    Console.WriteLine($"  State: {state}");
+                    Console.WriteLine($"  Area Path: {areaPath}");
+                    if (!string.IsNullOrWhiteSpace(tags?.ToString()))
+                    {
+                        Console.WriteLine($"  Tags: {tags}");
+                    }
+                    Console.WriteLine($"  URL: {_organization}/{Uri.EscapeDataString(_project)}/_workitems/edit/{id}");
+                    Console.WriteLine();
+                }
             }
         }
         catch (Exception ex)
