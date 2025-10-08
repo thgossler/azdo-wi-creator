@@ -57,6 +57,7 @@ public static class CommandHandler
         var areaPathsOption = new Option<bool>("--area-paths") { Description = "List all area paths defined in the Azure DevOps project hierarchically" };
         var fullStringsOption = new Option<bool>("--full-strings") { Description = "When used with --area-paths, output full path strings with quotes and commas (useful for copying to spec files)" };
         var tableOption = new Option<bool>("--table") { Description = "Display work items in a table format with auto-sized columns (ID, Title, State, Area Path, Tags)" };
+        var jsonOption = new Option<bool>("--json") { Description = "Output work items as JSON array with encoded URLs (no other output)" };
 
         var command = new Command("list", "List all work items created by this tool or area paths in the project")
         {
@@ -66,7 +67,8 @@ public static class CommandHandler
             interactiveSignInOption,
             areaPathsOption,
             fullStringsOption,
-            tableOption
+            tableOption,
+            jsonOption
         };
 
         command.SetAction((parseResult) =>
@@ -78,6 +80,7 @@ public static class CommandHandler
             var listAreaPaths = parseResult.GetValue(areaPathsOption);
             var fullStrings = parseResult.GetValue(fullStringsOption);
             var tableFormat = parseResult.GetValue(tableOption);
+            var jsonFormat = parseResult.GetValue(jsonOption);
 
             var executor = new WorkItemExecutor(organization, project, string.Empty, pat, interactiveSignIn);
             
@@ -87,7 +90,7 @@ public static class CommandHandler
             }
             else
             {
-                return executor.ExecuteListAsync(tableFormat);
+                return executor.ExecuteListAsync(tableFormat, jsonFormat);
             }
         });
 

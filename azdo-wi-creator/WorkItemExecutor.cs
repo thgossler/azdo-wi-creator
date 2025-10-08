@@ -356,26 +356,55 @@ public class WorkItemExecutor
         }
     }
 
-    public async Task ExecuteListAsync(bool tableFormat = false)
+    public async Task ExecuteListAsync(bool tableFormat = false, bool jsonFormat = false)
     {
         try
         {
             if (string.IsNullOrWhiteSpace(_project))
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error: --project is required for the list command.");
-                Console.ResetColor();
+                if (!jsonFormat)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Error: --project is required for the list command.");
+                    Console.ResetColor();
+                }
                 Environment.Exit(1);
                 return;
             }
 
-            Console.WriteLine($"\nListing work items created by this tool...");
-            Console.WriteLine($"Organization: {_organization}");
-            Console.WriteLine($"Project: {_project}");
-            Console.WriteLine();
-
-            using var client = new AzureDevOpsClient(_organization, _project, _pat, _interactiveSignIn);
+            using var client = new AzureDevOpsClient(_organization, _project, _pat, _interactiveSignIn, quietMode: jsonFormat);
             var workItems = await client.GetWorkItemsCreatedByToolAsync();
+
+            if (jsonFormat)
+            {
+                // JSON output - only output the JSON, nothing else
+                var jsonItems = workItems.Select(wi => new
+                {
+                    id = wi.Id ?? 0,
+                    title = wi.Fields.ContainsKey("System.Title") ? wi.Fields["System.Title"]?.ToString() ?? "(no title)" : "(no title)",
+                    state = wi.Fields.ContainsKey("System.State") ? wi.Fields["System.State"]?.ToString() ?? "(unknown)" : "(unknown)",
+                    type = wi.Fields.ContainsKey("System.WorkItemType") ? wi.Fields["System.WorkItemType"]?.ToString() ?? "(unknown)" : "(unknown)",
+                    areaPath = wi.Fields.ContainsKey("System.AreaPath") ? wi.Fields["System.AreaPath"]?.ToString() ?? "(unknown)" : "(unknown)",
+                    tags = wi.Fields.ContainsKey("System.Tags") ? wi.Fields["System.Tags"]?.ToString() ?? "" : "",
+                    url = $"{_organization}/{Uri.EscapeDataString(_project)}/_workitems/edit/{wi.Id ?? 0}"
+                }).ToList();
+
+                var options = new JsonSerializerOptions 
+                { 
+                    WriteIndented = true,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
+                Console.WriteLine(JsonSerializer.Serialize(jsonItems, options));
+                return;
+            }
+
+            if (!jsonFormat)
+            {
+                Console.WriteLine($"\nListing work items created by this tool...");
+                Console.WriteLine($"Organization: {_organization}");
+                Console.WriteLine($"Project: {_project}");
+                Console.WriteLine();
+            }
 
             if (workItems.Count == 0)
             {

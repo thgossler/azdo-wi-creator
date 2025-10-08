@@ -16,7 +16,7 @@ public class AzureDevOpsClient : IDisposable
     private readonly string _project;
     public const string ToolTag = "azdo-wi-creator";
 
-    public AzureDevOpsClient(string organizationUrl, string project, string? pat = null, bool interactiveSignIn = false)
+    public AzureDevOpsClient(string organizationUrl, string project, string? pat = null, bool interactiveSignIn = false, bool quietMode = false)
     {
         _project = project;
         
@@ -26,8 +26,11 @@ public class AzureDevOpsClient : IDisposable
         if (interactiveSignIn)
         {
             // Force interactive browser-based authentication (OAuth)
-            Console.WriteLine("Interactive sign-in requested. Using browser-based authentication...");
-            Console.WriteLine("A browser window will open for you to sign in.");
+            if (!quietMode)
+            {
+                Console.WriteLine("Interactive sign-in requested. Using browser-based authentication...");
+                Console.WriteLine("A browser window will open for you to sign in.");
+            }
             
             // Use VssOAuthAccessTokenCredential with AAD token
             // This requires the user to be signed in via their browser
@@ -41,13 +44,19 @@ public class AzureDevOpsClient : IDisposable
             {
                 // Use PAT authentication
                 credentials = new VssBasicCredential(string.Empty, effectivePat);
-                Console.WriteLine("Using Personal Access Token for authentication.");
+                if (!quietMode)
+                {
+                    Console.WriteLine("Using Personal Access Token for authentication.");
+                }
             }
             else
             {
                 // Use interactive browser-based authentication (OAuth)
-                Console.WriteLine("No PAT provided. Using interactive browser-based sign-in...");
-                Console.WriteLine("A browser window will open for you to sign in.");
+                if (!quietMode)
+                {
+                    Console.WriteLine("No PAT provided. Using interactive browser-based sign-in...");
+                    Console.WriteLine("A browser window will open for you to sign in.");
+                }
                 
                 credentials = new VssAadCredential();
             }
