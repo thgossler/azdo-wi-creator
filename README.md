@@ -38,7 +38,7 @@ Download the pre-built executable for your platform from the [Releases](../../re
 Or build from source:
 
 > Prerequisites:
-> - Installed .NET 9 SDK ([Download .NET 9 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0))
+> - Installed .NET 10 SDK ([Download .NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0))
 
 ```bash
 git clone https://github.com/thgossler/azdo-wi-creator.git
@@ -568,7 +568,7 @@ azdo-wi-creator -o "https://dev.azure.com/myorg" -p "MyProject" -t "User Story" 
 ## Building from Source
 
 Requirements:
-- .NET 9 SDK
+- .NET 10 SDK
 
 ### Build for all platforms:
 
@@ -643,7 +643,7 @@ dotnet publish azdo-wi-creator/azdo-wi-creator.csproj \
 Replace `<RUNTIME>` with:
 
 | Platform | Runtime | Output Directory |
-|----------|---------|------------------|
+| -------- | -------- | --------------- |
 | Windows x64 | `win-x64` | `publish/win-x64` |
 | Windows ARM64 | `win-arm64` | `publish/win-arm64` |
 | macOS x64 | `osx-x64` | `publish/osx-x64` |
